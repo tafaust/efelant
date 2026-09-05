@@ -1,0 +1,5 @@
+comment = 'Efelant Connect/gRPC-JSON listener (transport only)'
+default_version = '1.0'
+module_pathname = '$libdir/efelant_grpc'
+relocatable = false
+superuser = true

@@ -1,0 +1,5 @@
+comment = 'Efelant REST listener (HTTP transport only)'
+default_version = '1.0'
+module_pathname = '$libdir/efelant_rest'
+relocatable = false
+superuser = true
