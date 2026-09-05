@@ -334,10 +334,18 @@
     }
     const list = document.createElement("div");
     list.className = "toc-list";
-    const thumb = document.createElement("div");
-    thumb.className = "toc-thumb";
-    thumb.setAttribute("aria-hidden", "true");
-    list.append(thumb);
+    const track = document.createElement("div");
+    track.className = "toc-track";
+    track.setAttribute("aria-hidden", "true");
+    const NS = "http://www.w3.org/2000/svg";
+    const trackSvg = document.createElementNS(NS, "svg");
+    const trackActive = document.createElementNS(NS, "path");
+    trackActive.setAttribute("class", "toc-track-active");
+    trackSvg.append(trackActive);
+    const dot = document.createElement("div");
+    dot.className = "toc-dot";
+    track.append(trackSvg, dot);
+    list.append(track);
     const items = headings.map((heading) => ({
       heading,
       depth: Math.min(3, Math.max(2, tocDepth(heading))),
@@ -388,17 +396,112 @@
       return current;
     }
 
+    /** @type {{ d: string, positions: [number, number, number][], lengths: [number, number][] } | null} */
+    let layout = null;
+    let lastIndex = 0;
+    let currentDist = 0;
+    let targetDist = 0;
+    let animating = false;
+
+    function placeDot(distance) {
+      if (!layout) {
+        return;
+      }
+      const total = trackActive.getTotalLength();
+      const pt = trackActive.getPointAtLength(Math.min(Math.max(0, distance), total));
+      dot.style.transform = `translate(${pt.x - 2.5}px, ${pt.y - 2.5}px)`;
+    }
+
+    function moveDot(distance) {
+      targetDist = distance;
+      if (animating) {
+        return;
+      }
+      animating = true;
+      const step = () => {
+        const delta = targetDist - currentDist;
+        if (Math.abs(delta) < 0.4) {
+          currentDist = targetDist;
+          animating = false;
+        } else {
+          currentDist += delta * 0.22;
+          requestAnimationFrame(step);
+        }
+        placeDot(currentDist);
+      };
+      requestAnimationFrame(step);
+    }
+
+    function measureTrack() {
+      const positions = links.map((link, index) => {
+        const styles = getComputedStyle(link);
+        const x = tocBranchX(items[index].depth);
+        const top = link.offsetTop + Number.parseFloat(styles.paddingTop);
+        const bottom = link.offsetTop + link.clientHeight - Number.parseFloat(styles.paddingBottom);
+        return /** @type {[number, number, number]} */ ([top, bottom, x]);
+      });
+      let d = "";
+      let width = 0;
+      let height = 0;
+      for (let i = 0; i < positions.length; i += 1) {
+        const [top, bottom, x] = positions[i];
+        width = Math.max(width, x + 8);
+        height = Math.max(height, bottom);
+        if (i === 0) {
+          d += `M${x} ${top} L${x} ${bottom}`;
+        } else {
+          const [, upperBottom, upperX] = positions[i - 1];
+          d += ` L${upperX} ${upperBottom} ${x} ${top} L${x} ${bottom}`;
+        }
+      }
+      const probe = document.createElementNS(NS, "path");
+      probe.setAttribute("d", d);
+      const total = probe.getTotalLength();
+      const lengths = [];
+      let cursor = 0;
+      for (const [top, bottom] of positions) {
+        while (cursor < total && probe.getPointAtLength(cursor).y < top) {
+          cursor += 1;
+        }
+        const start = cursor;
+        const end = Math.min(total, start + Math.max(0, bottom - top));
+        lengths.push(/** @type {[number, number]} */ ([start, end]));
+        cursor = end;
+      }
+      track.style.width = `${width}px`;
+      track.style.height = `${height}px`;
+      trackSvg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+      trackSvg.setAttribute("width", String(width));
+      trackSvg.setAttribute("height", String(height));
+      trackActive.setAttribute("d", d);
+      layout = { d, positions, lengths };
+      placeDot(currentDist);
+    }
+
     function paint(activeLink) {
       if (!(activeLink instanceof HTMLElement)) {
+        return;
+      }
+      if (!layout) {
+        measureTrack();
+      }
+      const index = links.indexOf(activeLink);
+      if (index < 0 || !layout) {
         return;
       }
       for (const link of links) {
         link.setAttribute("data-active", String(link === activeLink));
       }
-      const depth = Number(activeLink.dataset.depth || "2");
-      thumb.style.setProperty("--toc-top", `${activeLink.offsetTop}px`);
-      thumb.style.setProperty("--toc-height", `${activeLink.offsetHeight}px`);
-      thumb.style.setProperty("--toc-left", `${tocBranchX(depth) - 1}px`);
+      const goingDown = index >= lastIndex;
+      lastIndex = index;
+      const [startLen, endLen] = layout.lengths[index];
+      const last = index === links.length - 1;
+      const first = index === 0;
+      const distance = last || (goingDown && !first) ? endLen : startLen;
+      const [top, bottom] = layout.positions[index];
+      track.style.setProperty("--track-top", `${top}px`);
+      track.style.setProperty("--track-bottom", `${bottom}px`);
+      moveDot(distance);
       activeLink.scrollIntoView({ block: "nearest", inline: "nearest" });
     }
 
@@ -429,7 +532,10 @@
 
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("scrollend", sync);
-    window.addEventListener("resize", onScroll);
+    window.addEventListener("resize", () => {
+      measureTrack();
+      onScroll();
+    });
     const observer = new IntersectionObserver(onScroll, {
       rootMargin: "-80px 0% -70% 0%",
       threshold: 1,
