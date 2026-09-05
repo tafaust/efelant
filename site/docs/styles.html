@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Styles — efelant</title>
+  <meta name="description" content="Efelant design tokens, themes, and component chrome catalog." />
+  <link rel="icon" href="../media/07-favicon-dark.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/site.css" />
+  <style>
+    :root { --ef-font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif; --ef-font-mono: "IBM Plex Mono", ui-monospace, monospace; }
+  </style>
+  <script src="../js/theme.js"></script>
+</head>
+<body data-efelant-theme="primary">
+  <header class="mast">
+    <div class="wrap mast-inner">
+      <a class="brand" href="../">
+        <img src="../media/03-app-icon-dark.png" alt="" width="32" height="32" />
+        <span><span class="e">e</span>felant</span>
+      </a>
+      <nav class="nav" data-nav>
+        <a href="./">Docs</a>
+        <a href="api.html">API</a>
+        <a class="nav-cta" href="quickstart.html">Get started</a>
+      </nav>
+      <button class="menu" type="button" data-menu aria-label="Open menu">Menu</button>
+    </div>
+  </header>
+
+  <div class="docs-shell">
+    <aside class="side">
+      <div class="side-group">
+        <p class="side-label">Start</p>
+        <a href="./">Introduction</a>
+        <a href="quickstart.html">Quickstart</a>
+        <a href="use-cases.html">Use cases</a>
+        <a href="status.html">Readiness</a>
+        <a href="license.html">License</a>
+      </div>
+      <div class="side-group">
+        <p class="side-label">Platform</p>
+        <a href="embedding.html">Embedding</a>
+        <a href="api.html">REST / gRPC</a>
+        <a href="deployment.html">Self-host</a>
+      </div>
+      <div class="side-group">
+        <p class="side-label">Design</p>
+        <a href="sdk.html">SDKs</a>
+        <a href="styles.html" aria-current="page">Styles</a>
+      </div>
+    </aside>
+
+    <article class="prose wide">
+      <h1>Styles</h1>
+      <p class="sub">Style Dictionary tokens. This page is the catalog — there is no Storybook.</p>
+      <p>Sources: <code>packages/tokens/tokens/*.json</code>. Rebuild with <code>./scripts/packages.sh tokens</code>. SDKs that consume these tokens: <a href="sdk.html">SDKs</a>. Use the header Light / Dark control to switch <code>secondary</code> / <code>primary</code>.</p>
+
+      <h2 id="themes">Themes</h2>
+      <p><code>primary</code> is navy. <code>secondary</code> is paper / copper. Set <code>data-efelant-theme</code> on a parent. Flutter: <code>EfelantThemeId.primary</code> or <code>.secondary</code>.</p>
+      <div class="pair-themes">
+        <div class="theme-island" data-efelant-theme="primary">
+          <p><strong>primary</strong> — navy, indigo</p>
+          <div class="swatches">
+            <figure class="swatch"><div class="swatch-chip" style="background: var(--ef-color-bg)"></div><figcaption>bg</figcaption></figure>
+            <figure class="swatch"><div class="swatch-chip" style="background: var(--ef-color-accent)"></div><figcaption>accent</figcaption></figure>
+            <figure class="swatch"><div class="swatch-chip" style="background: var(--ef-color-mine)"></div><figcaption>mine</figcaption></figure>
+            <figure class="swatch"><div class="swatch-chip" style="background: var(--ef-color-danger)"></div><figcaption>danger</figcaption></figure>
+          </div>
+        </div>
+        <div class="theme-island" data-efelant-theme="secondary">
+          <p><strong>secondary</strong> — paper, copper</p>
+          <div class="swatches">
+            <figure class="swatch"><div class="swatch-chip" style="background: var(--ef-color-bg)"></div><figcaption>bg</figcaption></figure>
+            <figure class="swatch"><div class="swatch-chip" style="background: var(--ef-color-accent)"></div><figcaption>accent</figcaption></figure>
+            <figure class="swatch"><div class="swatch-chip" style="background: var(--ef-color-mine)"></div><figcaption>mine</figcaption></figure>
+            <figure class="swatch"><div class="swatch-chip" style="background: var(--ef-color-danger)"></div><figcaption>danger</figcaption></figure>
+          </div>
+        </div>
+      </div>
+
+      <h2 id="color">Color</h2>
+      <p>Live values follow the page theme.</p>
+      <div class="swatches">
+        <figure class="swatch"><div class="swatch-chip" style="background: var(--ef-color-bg)"></div><figcaption>bg<code>--ef-color-bg</code></figcaption></figure>
+        <figure class="swatch"><div class="swatch-chip" style="background: var(--ef-color-bg-raised)"></div><figcaption>bg-raised<code>--ef-color-bg-raised</code></figcaption></figure>
+        <figure class="swatch"><div class="swatch-chip" style="background: var(--ef-color-bg-overlay)"></div><figcaption>bg-overlay<code>--ef-color-bg-overlay</code></figcaption></figure>
+        <figure class="swatch"><div class="swatch-chip" style="background: var(--ef-color-text)"></div><figcaption>text<code>--ef-color-text</code></figcaption></figure>
+        <figure class="swatch"><div class="swatch-chip" style="background: var(--ef-color-text-muted)"></div><figcaption>text-muted<code>--ef-color-text-muted</code></figcaption></figure>
+        <figure class="swatch"><div class="swatch-chip" style="background: var(--ef-color-border)"></div><figcaption>border<code>--ef-color-border</code></figcaption></figure>
+        <figure class="swatch"><div class="swatch-chip" style="background: var(--ef-color-accent)"></div><figcaption>accent<code>--ef-color-accent</code></figcaption></figure>
+        <figure class="swatch"><div class="swatch-chip" style="background: var(--ef-color-accent-soft)"></div><figcaption>accent-soft<code>--ef-color-accent-soft</code></figcaption></figure>
+        <figure class="swatch"><div class="swatch-chip" style="background: var(--ef-color-accent-contrast)"></div><figcaption>accent-contrast<code>--ef-color-accent-contrast</code></figcaption></figure>
+        <figure class="swatch"><div class="swatch-chip" style="background: var(--ef-color-mine)"></div><figcaption>mine<code>--ef-color-mine</code></figcaption></figure>
+        <figure class="swatch"><div class="swatch-chip" style="background: var(--ef-color-theirs)"></div><figcaption>theirs<code>--ef-color-theirs</code></figcaption></figure>
+        <figure class="swatch"><div class="swatch-chip" style="background: var(--ef-color-danger)"></div><figcaption>danger<code>--ef-color-danger</code></figcaption></figure>
+        <figure class="swatch"><div class="swatch-chip" style="background: var(--ef-color-ok)"></div><figcaption>ok<code>--ef-color-ok</code></figcaption></figure>
+      </div>
+
+      <h2 id="type">Type</h2>
+      <div class="type-row" style="font-size: var(--ef-font-size-3xl); font-weight: var(--ef-font-weight-bold); line-height: var(--ef-font-line-tight);">Efelant<span>3xl / 56 / bold</span></div>
+      <div class="type-row" style="font-size: var(--ef-font-size-2xl); font-weight: var(--ef-font-weight-semibold); line-height: var(--ef-font-line-tight);">Conversation layer<span>2xl / 40 / semibold</span></div>
+      <div class="type-row" style="font-size: var(--ef-font-size-xl); font-weight: var(--ef-font-weight-semibold);">Access request AR-123<span>xl / 28 / semibold</span></div>
+      <div class="type-row" style="font-size: var(--ef-font-size-lg); font-weight: var(--ef-font-weight-medium);">Status changed to approved<span>lg / 20 / medium</span></div>
+      <div class="type-row" style="font-size: var(--ef-font-size-md); line-height: var(--ef-font-line-body);">Body copy uses IBM Plex Sans at 16.<span>md / 16 / regular</span></div>
+      <div class="type-row" style="font-size: var(--ef-font-size-sm); color: var(--ef-color-text-muted);">Muted meta, timestamps, captions.<span>sm / 14</span></div>
+      <div class="type-row" style="font-size: var(--ef-font-size-xs); font-family: var(--ef-font-mono);">SELECT efelant.open_context(…)<span>xs / 12 / mono</span></div>
+
+      <h2 id="space">Space</h2>
+      <div class="scale">
+        <div class="scale-row"><code>2xs</code><span>4</span><div class="scale-bar" style="width: 4px"></div></div>
+        <div class="scale-row"><code>xs</code><span>8</span><div class="scale-bar" style="width: 8px"></div></div>
+        <div class="scale-row"><code>sm</code><span>12</span><div class="scale-bar" style="width: 12px"></div></div>
+        <div class="scale-row"><code>md</code><span>16</span><div class="scale-bar" style="width: 16px"></div></div>
+        <div class="scale-row"><code>lg</code><span>24</span><div class="scale-bar" style="width: 24px"></div></div>
+        <div class="scale-row"><code>xl</code><span>32</span><div class="scale-bar" style="width: 32px"></div></div>
+        <div class="scale-row"><code>2xl</code><span>48</span><div class="scale-bar" style="width: 48px"></div></div>
+        <div class="scale-row"><code>3xl</code><span>72</span><div class="scale-bar" style="width: 72px"></div></div>
+      </div>
+
+      <h2 id="radius">Radius</h2>
+      <div class="radius-row">
+        <div class="radius-box" style="border-radius: var(--ef-radius-sm)">sm 8</div>
+        <div class="radius-box" style="border-radius: var(--ef-radius-md)">md 16</div>
+        <div class="radius-box" style="border-radius: var(--ef-radius-lg)">lg 24</div>
+        <div class="radius-box" style="border-radius: var(--ef-radius-pill); width: 96px;">pill</div>
+      </div>
+
+      <h2 id="components">Components</h2>
+      <p>Static chrome using the same CSS variables as <code>&lt;efelant-*&gt;</code>. Not live Stencil — props and events are on <a href="sdk.html">SDKs</a>.</p>
+
+      <div class="preview">
+        <p class="preview-label">conversation + badge + composer</p>
+        <div class="comp-thread">
+          <div class="comp-header">
+            <strong>AR-123</strong>
+            <span class="comp-badge">3</span>
+          </div>
+          <div class="comp-msg theirs">Can we approve this request?</div>
+          <div class="comp-msg mine">Yes — publishing status now.</div>
+          <article class="comp-status">
+            <strong>approved</strong>
+            <p>Access granted for AR-123</p>
+          </article>
+          <form class="comp-composer" action="#" onsubmit="return false">
+            <input name="text" placeholder="Message" />
+            <button type="submit">Send</button>
+          </form>
+        </div>
+      </div>
+
+      <h2 id="regen">Rebuild</h2>
+      <pre data-lang="bash"><code>./scripts/packages.sh tokens</code></pre>
+      <p>Edit JSON. Do not hand-edit <code>dist/</code>, <code>site/css/tokens.css</code>, or <code>tokens.g.dart</code>.</p>
+    </article>
+
+    <nav class="toc" aria-label="On this page">
+      <h3>On this page</h3>
+      <a href="#themes">Themes</a>
+      <a href="#color">Color</a>
+      <a href="#type">Type</a>
+      <a href="#space">Space</a>
+      <a href="#radius">Radius</a>
+      <a href="#components">Components</a>
+      <a href="#regen">Rebuild</a>
+    </nav>
+  </div>
+
+  <footer class="wrap foot">
+    <span>© 2026 efelant · <a href="../LICENSE.txt">AGPL-3.0</a></span>
+    <span><a href="../">Home</a> · <a href="https://github.com/tafaust/efelant">Source</a></span>
+  </footer>
+  <script src="../js/site.js"></script>
+</body>
+</html>

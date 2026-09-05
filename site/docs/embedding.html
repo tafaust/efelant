@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Embedding — efelant</title>
+  <link rel="icon" href="../media/07-favicon-dark.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/site.css" />
+  <style>
+    :root { --ef-font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif; --ef-font-mono: "IBM Plex Mono", ui-monospace, monospace; }
+  </style>
+  <script src="../js/theme.js"></script>
+</head>
+<body data-efelant-theme="primary">
+  <header class="mast">
+    <div class="wrap mast-inner">
+      <a class="brand" href="../">
+        <img src="../media/03-app-icon-dark.png" alt="" width="32" height="32" />
+        <span><span class="e">e</span>felant</span>
+      </a>
+      <nav class="nav" data-nav>
+        <a href="./">Docs</a>
+        <a href="api.html">API</a>
+        <a class="nav-cta" href="quickstart.html">Get started</a>
+      </nav>
+      <button class="menu" type="button" data-menu aria-label="Open menu">Menu</button>
+    </div>
+  </header>
+
+  <div class="docs-shell">
+    <aside class="side">
+      <div class="side-group">
+        <p class="side-label">Start</p>
+        <a href="./">Introduction</a>
+        <a href="quickstart.html">Quickstart</a>
+        <a href="use-cases.html">Use cases</a>
+        <a href="status.html">Readiness</a>
+        <a href="license.html">License</a>
+      </div>
+      <div class="side-group">
+        <p class="side-label">Platform</p>
+        <a href="embedding.html" aria-current="page">Embedding</a>
+        <a href="api.html">REST / gRPC</a>
+        <a href="deployment.html">Self-host</a>
+      </div>
+      <div class="side-group">
+        <p class="side-label">Design</p>
+        <a href="sdk.html">SDKs</a>
+        <a href="styles.html">Styles</a>
+      </div>
+    </aside>
+
+    <article class="prose">
+      <h1>Embedding</h1>
+      <p class="sub">Host apps attach communication to an opaque context. They do not model tickets inside Efelant.</p>
+      <pre data-lang="text"><code>Conversation + Context + Event</code></pre>
+
+      <h2 id="flutter">Flutter</h2>
+      <pre data-lang="dart"><code>EfelantConversation(
+  tenantId: tenantId,
+  context: EfelantContext(
+    type: 'access_request',
+    externalId: accessRequestId,
+  ),
+)</code></pre>
+
+      <h2 id="web">Web components</h2>
+      <pre data-lang="html"><code>&lt;efelant-conversation
+  tenant-id="…"
+  context-type="access_request"
+  external-id="AR-123"&gt;
+&lt;/efelant-conversation&gt;</code></pre>
+      <p>No React package ships from this repo. Stencil custom elements work from HTML, Vue, Angular, and Svelte.</p>
+
+      <h2 id="packages">Regenerate tokens and SDKs</h2>
+      <p>Package surfaces: <a href="sdk.html">SDKs</a>. Token catalog: <a href="styles.html">Styles</a>. The landing-page demo uses <code>createMemoryTransport()</code>, local <code>createGatewayTransport</code>, or a custom self-hosted WebSocket URL.</p>
+      <p>From the repository root (Node 20+):</p>
+      <pre data-lang="bash"><code>./scripts/packages.sh              # tokens → clients → Stencil → Flutter
+./scripts/packages.sh tokens       # Style Dictionary only
+./scripts/packages.sh components   # tokens, then web components</code></pre>
+      <p>Edit <code>packages/tokens/tokens/*.json</code> and <code>packages/web-components/src/</code>. Do not hand-edit generated CSS or Dart.</p>
+
+      <h2 id="sql">Same transaction</h2>
+      <p>If the host shares the database, call <code>efelant.publish_status</code> in the same transaction as the business update. If it cannot, use an <a href="api.html">API client token</a> over REST or gRPC.</p>
+    </article>
+
+    <nav class="toc">
+      <h3>On this page</h3>
+      <a href="#flutter">Flutter</a>
+      <a href="#web">Web</a>
+      <a href="#packages">Tokens / SDKs</a>
+      <a href="#sql">Same transaction</a>
+    </nav>
+  </div>
+
+  <footer class="wrap foot">
+    <span>© 2026 efelant · <a href="../LICENSE.txt">AGPL-3.0</a></span>
+    <span><a href="../">Home</a> · <a href="https://github.com/tafaust/efelant">Source</a></span>
+  </footer>
+  <script src="../js/site.js"></script>
+</body>
+</html>

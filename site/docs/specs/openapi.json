@@ -1,0 +1,1531 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Efelant REST",
+    "version": "1.0.0",
+    "description": "Read-only spec generated from `database/init/015_api.sql` (`api.handle_http`, `api.invoke`, `api.protobuf`).\n\nErrors are JSON `{ \"error\", \"code\" }` where `code` is a PostgreSQL SQLSTATE: `28000` → 401, `42501` → 403, `P0002` → 404, `22023` / `22P02` / `23514` → 400."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:18080"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Health",
+      "description": "Worker liveness. Public."
+    },
+    {
+      "name": "Tenants",
+      "description": "List memberships and bind the session to a tenant. Scope `tenants:read`."
+    },
+    {
+      "name": "Contexts",
+      "description": "A context is the host record (type + external id) mapped to one conversation."
+    },
+    {
+      "name": "Events",
+      "description": "Append-only stream on a conversation. Sync after a sequence, or publish."
+    },
+    {
+      "name": "Clients",
+      "description": "Machine tokens (`efl_…`). Tenant owner/admin only. Scope `clients:write`."
+    },
+    {
+      "name": "Spec",
+      "description": "Machine-readable OpenAPI and protobuf. Public."
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Session token or API client token (`efl_…`)."
+      }
+    },
+    "schemas": {
+      "Empty": {
+        "type": "object",
+        "properties": {}
+      },
+      "HealthRequest": {
+        "type": "object",
+        "properties": {}
+      },
+      "HealthReply": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "description": "True when the worker answered."
+          },
+          "name": {
+            "type": "string",
+            "description": "Service name, always `efelant`."
+          }
+        }
+      },
+      "Tenant": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string",
+            "description": "URL-safe tenant slug."
+          },
+          "name": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "description": "Membership role (`owner`, `admin`, `member`, …)."
+          }
+        }
+      },
+      "TenantList": {
+        "type": "object",
+        "properties": {
+          "tenants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Tenant"
+            }
+          }
+        }
+      },
+      "SelectTenantRequest": {
+        "type": "object",
+        "properties": {
+          "tenant_id": {
+            "type": "string",
+            "description": "Tenant UUID."
+          }
+        }
+      },
+      "SelectTenantReply": {
+        "type": "object",
+        "properties": {
+          "tenant_id": {
+            "type": "string",
+            "description": "Tenant UUID."
+          }
+        }
+      },
+      "OpenContextRequest": {
+        "type": "object",
+        "properties": {
+          "tenant_id": {
+            "type": "string",
+            "description": "Tenant UUID."
+          },
+          "type": {
+            "type": "string"
+          },
+          "external_id": {
+            "type": "string",
+            "description": "Host record id."
+          },
+          "metadata_json": {
+            "type": "string",
+            "description": "JSON object serialized as a string in protobuf; JSON object on REST."
+          }
+        }
+      },
+      "GetContextRequest": {
+        "type": "object",
+        "properties": {
+          "tenant_id": {
+            "type": "string",
+            "description": "Tenant UUID."
+          },
+          "type": {
+            "type": "string"
+          },
+          "external_id": {
+            "type": "string",
+            "description": "Host record id."
+          }
+        }
+      },
+      "Context": {
+        "type": "object",
+        "properties": {
+          "context_id": {
+            "type": "string",
+            "description": "Context UUID."
+          },
+          "conversation_id": {
+            "type": "string",
+            "description": "Conversation UUID."
+          },
+          "tenant_id": {
+            "type": "string",
+            "description": "Tenant UUID."
+          },
+          "type": {
+            "type": "string"
+          },
+          "external_id": {
+            "type": "string",
+            "description": "Host record id."
+          },
+          "metadata_json": {
+            "type": "string",
+            "description": "JSON object serialized as a string in protobuf; JSON object on REST."
+          }
+        }
+      },
+      "SyncEventsRequest": {
+        "type": "object",
+        "properties": {
+          "conversation_id": {
+            "type": "string",
+            "description": "Conversation UUID."
+          },
+          "after_sequence": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Exclusive sequence cursor."
+          }
+        }
+      },
+      "SyncContextEventsRequest": {
+        "type": "object",
+        "properties": {
+          "tenant_id": {
+            "type": "string",
+            "description": "Tenant UUID."
+          },
+          "type": {
+            "type": "string"
+          },
+          "external_id": {
+            "type": "string",
+            "description": "Host record id."
+          },
+          "after_sequence": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Exclusive sequence cursor."
+          }
+        }
+      },
+      "Event": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Event UUID."
+          },
+          "conversation_id": {
+            "type": "string",
+            "description": "Conversation UUID."
+          },
+          "tenant_id": {
+            "type": "string",
+            "description": "Tenant UUID."
+          },
+          "sequence": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Monotonic sequence in the conversation."
+          },
+          "type": {
+            "type": "string",
+            "description": "Event type (`message`, `status.changed`, …)."
+          },
+          "actor_id": {
+            "type": "string",
+            "description": "User or API-client user that published the event."
+          },
+          "payload_json": {
+            "type": "string",
+            "description": "Event payload as JSON text."
+          },
+          "created_at": {
+            "type": "string",
+            "description": "RFC 3339 timestamp."
+          }
+        }
+      },
+      "EventList": {
+        "type": "object",
+        "properties": {
+          "events": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Event"
+            }
+          }
+        }
+      },
+      "PublishEventRequest": {
+        "type": "object",
+        "properties": {
+          "tenant_id": {
+            "type": "string",
+            "description": "Tenant UUID."
+          },
+          "type": {
+            "type": "string"
+          },
+          "external_id": {
+            "type": "string",
+            "description": "Host record id."
+          },
+          "event_type": {
+            "type": "string",
+            "description": "Domain event type. REST also accepts `type` in the JSON body."
+          },
+          "message": {
+            "type": "string",
+            "description": "Optional human-readable text."
+          },
+          "metadata_json": {
+            "type": "string",
+            "description": "JSON object serialized as a string in protobuf; JSON object on REST."
+          }
+        }
+      },
+      "PublishStatusRequest": {
+        "type": "object",
+        "properties": {
+          "tenant_id": {
+            "type": "string",
+            "description": "Tenant UUID."
+          },
+          "type": {
+            "type": "string"
+          },
+          "external_id": {
+            "type": "string",
+            "description": "Host record id."
+          },
+          "status": {
+            "type": "string",
+            "description": "New status value for the context."
+          },
+          "message": {
+            "type": "string"
+          },
+          "metadata_json": {
+            "type": "string",
+            "description": "JSON object serialized as a string in protobuf; JSON object on REST."
+          }
+        }
+      },
+      "PublishReply": {
+        "type": "object",
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "description": "Id of the appended event."
+          },
+          "conversation_id": {
+            "type": "string",
+            "description": "Conversation UUID."
+          },
+          "sequence": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Sequence assigned to the appended event."
+          }
+        }
+      },
+      "CreateClientRequest": {
+        "type": "object",
+        "properties": {
+          "tenant_id": {
+            "type": "string",
+            "description": "Tenant UUID."
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name for the client."
+          },
+          "scopes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Scope strings. Default integration set if omitted."
+          }
+        }
+      },
+      "ClientCreated": {
+        "type": "object",
+        "properties": {
+          "client_id": {
+            "type": "string",
+            "description": "API client UUID."
+          },
+          "token": {
+            "type": "string",
+            "description": "Bearer token, prefix `efl_`. Shown once."
+          },
+          "user_id": {
+            "type": "string",
+            "description": "Service user created for this client."
+          },
+          "scopes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "ListClientsRequest": {
+        "type": "object",
+        "properties": {
+          "tenant_id": {
+            "type": "string",
+            "description": "Tenant UUID."
+          }
+        }
+      },
+      "Client": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "scopes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "created_at": {
+            "type": "string"
+          },
+          "revoked_at": {
+            "type": "string",
+            "description": "Set when the client was revoked; empty if still active."
+          }
+        }
+      },
+      "ClientList": {
+        "type": "object",
+        "properties": {
+          "clients": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Client"
+            }
+          }
+        }
+      },
+      "RevokeClientRequest": {
+        "type": "object",
+        "properties": {
+          "client_id": {
+            "type": "string",
+            "description": "API client UUID."
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": [
+          "error",
+          "code"
+        ],
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Human-readable SQLERRM."
+          },
+          "code": {
+            "type": "string",
+            "description": "PostgreSQL SQLSTATE (`28000`, `42501`, `P0002`, …)."
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/efelant.v1.Efelant.proto": {
+      "get": {
+        "tags": [
+          "Spec"
+        ],
+        "summary": "protobuf schema",
+        "description": "Protobuf schema from `api.protobuf()`, wrapped as JSON `{ \"proto\": \"…\" }`. Same text as the `efelant.proto` download. Public.\n\nPublic. No bearer token.",
+        "operationId": "proto",
+        "security": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK."
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Liveness",
+        "description": "Liveness for the REST worker. Returns `ok: true` and `name: efelant` when SQL can run. No bearer token.\n\nPublic. No bearer token.\n\nSame SQL operation as Connect/gRPC `POST /efelant.v1.Efelant/Health` on port 18081.",
+        "operationId": "Health",
+        "security": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "HealthReply JSON.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthReply"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/clients/{clientId}": {
+      "delete": {
+        "tags": [
+          "Clients"
+        ],
+        "summary": "Revoke an API client",
+        "description": "Revokes an API client. Existing `efl_…` tokens stop authenticating. Returns 404 if the id is unknown.\n\nRequires `Authorization: Bearer <token>` with scope `clients:write`.\n\nSame SQL operation as Connect/gRPC `POST /efelant.v1.Efelant/RevokeClient` on port 18081.",
+        "operationId": "RevokeClient",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "clientId",
+            "in": "path",
+            "required": true,
+            "description": "API client UUID.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Empty JSON.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Empty"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid JSON, UUID, or arguments. SQLSTATE `22023`, `22P02`, or `23514`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token. SQLSTATE `28000`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but missing scope `clients:write`. SQLSTATE `42501`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown path, context, conversation, or API client. SQLSTATE `P0002`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/contexts": {
+      "post": {
+        "tags": [
+          "Contexts"
+        ],
+        "summary": "Open or reuse a context conversation",
+        "description": "Opens or reuses the conversation for (`tenant_id`, `type`, `external_id`). Idempotent: the same triple returns the existing context. `type` and `external_id` are host-defined (for example `ticket` / `T-1`).\n\nRequires `Authorization: Bearer <token>` with scope `contexts:write`.\n\nSame SQL operation as Connect/gRPC `POST /efelant.v1.Efelant/OpenContext` on port 18081.",
+        "operationId": "OpenContext",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Context JSON.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Context"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid JSON, UUID, or arguments. SQLSTATE `22023`, `22P02`, or `23514`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token. SQLSTATE `28000`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but missing scope `contexts:write`. SQLSTATE `42501`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown path, context, conversation, or API client. SQLSTATE `P0002`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "description": "OpenContextRequest JSON. Path parameters override matching body fields when both are present.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OpenContextRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/conversations/{conversationId}/events": {
+      "get": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "Sync conversation events after a sequence",
+        "description": "Events on a conversation with `sequence` greater than `after`. Omit `after` or pass `0` for the full stream. Ordered by sequence.\n\nRequires `Authorization: Bearer <token>` with scope `events:read`.\n\nSame SQL operation as Connect/gRPC `POST /efelant.v1.Efelant/SyncEvents` on port 18081.",
+        "operationId": "SyncEvents",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "conversationId",
+            "in": "path",
+            "required": true,
+            "description": "Conversation UUID from an opened context.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "required": false,
+            "description": "Exclusive sequence cursor. Default `0` (full stream).",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "default": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "EventList JSON.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid JSON, UUID, or arguments. SQLSTATE `22023`, `22P02`, or `23514`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token. SQLSTATE `28000`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but missing scope `events:read`. SQLSTATE `42501`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown path, context, conversation, or API client. SQLSTATE `P0002`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/efelant.proto": {
+      "get": {
+        "tags": [
+          "Spec"
+        ],
+        "summary": "protobuf schema",
+        "description": "Protobuf schema from `api.protobuf()`, wrapped as JSON `{ \"proto\": \"…\" }`. Same text as the `efelant.proto` download. Public.\n\nPublic. No bearer token.",
+        "operationId": "proto",
+        "security": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK."
+          }
+        }
+      }
+    },
+    "/v1/health": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Liveness",
+        "description": "Liveness for the REST worker. Returns `ok: true` and `name: efelant` when SQL can run. No bearer token.\n\nPublic. No bearer token.\n\nSame SQL operation as Connect/gRPC `POST /efelant.v1.Efelant/Health` on port 18081.",
+        "operationId": "Health",
+        "security": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "HealthReply JSON.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthReply"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/openapi.json": {
+      "get": {
+        "tags": [
+          "Spec"
+        ],
+        "summary": "OpenAPI document",
+        "description": "OpenAPI document from `api.openapi()`. The HTML on this page is generated from the same SQL and is richer (parameters, schemas, status codes).\n\nPublic. No bearer token.",
+        "operationId": "openapi",
+        "security": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK."
+          }
+        }
+      }
+    },
+    "/v1/tenants": {
+      "get": {
+        "tags": [
+          "Tenants"
+        ],
+        "summary": "List tenants for the caller",
+        "description": "Tenants the caller belongs to, each with `id`, `slug`, `name`, and `role`. A human session sees every membership. An API client sees the tenant it was created for.\n\nRequires `Authorization: Bearer <token>` with scope `tenants:read`.\n\nSame SQL operation as Connect/gRPC `POST /efelant.v1.Efelant/ListTenants` on port 18081.",
+        "operationId": "ListTenants",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "TenantList JSON.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantList"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token. SQLSTATE `28000`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but missing scope `tenants:read`. SQLSTATE `42501`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/tenants/{tenantId}/clients": {
+      "get": {
+        "tags": [
+          "Clients"
+        ],
+        "summary": "List API clients",
+        "description": "API clients for the tenant, including `revoked_at` when revoked. Tokens are never listed.\n\nRequires `Authorization: Bearer <token>` with scope `clients:write`.\n\nSame SQL operation as Connect/gRPC `POST /efelant.v1.Efelant/ListClients` on port 18081.",
+        "operationId": "ListClients",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "description": "Tenant UUID.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ClientList JSON.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid JSON, UUID, or arguments. SQLSTATE `22023`, `22P02`, or `23514`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token. SQLSTATE `28000`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but missing scope `clients:write`. SQLSTATE `42501`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown path, context, conversation, or API client. SQLSTATE `P0002`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Clients"
+        ],
+        "summary": "Create an API client (token shown once)",
+        "description": "Creates a tenant-scoped API client. The token (`efl_…`) is in this response once and cannot be fetched again. Only tenant `owner` / `admin`. If `scopes` is omitted, the default integration scopes are applied.\n\nRequires `Authorization: Bearer <token>` with scope `clients:write`.\n\nSame SQL operation as Connect/gRPC `POST /efelant.v1.Efelant/CreateClient` on port 18081.",
+        "operationId": "CreateClient",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "description": "Tenant UUID.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created. For API clients, `token` is present once.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientCreated"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid JSON, UUID, or arguments. SQLSTATE `22023`, `22P02`, or `23514`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token. SQLSTATE `28000`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but missing scope `clients:write`. SQLSTATE `42501`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown path, context, conversation, or API client. SQLSTATE `P0002`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "description": "CreateClientRequest JSON. Path parameters override matching body fields when both are present.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateClientRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/tenants/{tenantId}/contexts/{type}/{externalId}": {
+      "get": {
+        "tags": [
+          "Contexts"
+        ],
+        "summary": "Get a context",
+        "description": "Reads an existing context by tenant, type, and external id. Returns 404 if it has not been opened yet.\n\nRequires `Authorization: Bearer <token>` with scope `contexts:read`.\n\nSame SQL operation as Connect/gRPC `POST /efelant.v1.Efelant/GetContext` on port 18081.",
+        "operationId": "GetContext",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "description": "Tenant UUID.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "type",
+            "in": "path",
+            "required": true,
+            "description": "Host context kind (for example `ticket`). URL-decoded.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "externalId",
+            "in": "path",
+            "required": true,
+            "description": "Host record id (for example `T-1`). URL-decoded.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Context JSON.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Context"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid JSON, UUID, or arguments. SQLSTATE `22023`, `22P02`, or `23514`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token. SQLSTATE `28000`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but missing scope `contexts:read`. SQLSTATE `42501`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown path, context, conversation, or API client. SQLSTATE `P0002`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/tenants/{tenantId}/contexts/{type}/{externalId}/events": {
+      "get": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "Sync context events after a sequence",
+        "description": "Same as conversation sync, addressed by the context triple (`tenantId`, `type`, `externalId`) instead of `conversationId`.\n\nRequires `Authorization: Bearer <token>` with scope `events:read`.\n\nSame SQL operation as Connect/gRPC `POST /efelant.v1.Efelant/SyncContextEvents` on port 18081.",
+        "operationId": "SyncContextEvents",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "description": "Tenant UUID.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "type",
+            "in": "path",
+            "required": true,
+            "description": "Host context kind (for example `ticket`). URL-decoded.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "externalId",
+            "in": "path",
+            "required": true,
+            "description": "Host record id (for example `T-1`). URL-decoded.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "required": false,
+            "description": "Exclusive sequence cursor. Default `0` (full stream).",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "default": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "EventList JSON.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid JSON, UUID, or arguments. SQLSTATE `22023`, `22P02`, or `23514`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token. SQLSTATE `28000`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but missing scope `events:read`. SQLSTATE `42501`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown path, context, conversation, or API client. SQLSTATE `P0002`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "Publish a domain event",
+        "description": "Appends a domain event to the context conversation. Send `event_type` (or `type` in the JSON body), optional `message`, and optional `metadata` object.\n\nRequires `Authorization: Bearer <token>` with scope `events:write`.\n\nSame SQL operation as Connect/gRPC `POST /efelant.v1.Efelant/PublishEvent` on port 18081.",
+        "operationId": "PublishEvent",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "description": "Tenant UUID.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "type",
+            "in": "path",
+            "required": true,
+            "description": "Host context kind (for example `ticket`). URL-decoded.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "externalId",
+            "in": "path",
+            "required": true,
+            "description": "Host record id (for example `T-1`). URL-decoded.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "PublishReply JSON.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishReply"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid JSON, UUID, or arguments. SQLSTATE `22023`, `22P02`, or `23514`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token. SQLSTATE `28000`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but missing scope `events:write`. SQLSTATE `42501`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown path, context, conversation, or API client. SQLSTATE `P0002`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "description": "PublishEventRequest JSON. Path parameters override matching body fields when both are present.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublishEventRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/tenants/{tenantId}/contexts/{type}/{externalId}/status": {
+      "post": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "Publish a status.changed event",
+        "description": "Publishes a `status.changed` event for the context. Host UIs treat `status` as the current state (for example `approved` or `rejected`).\n\nRequires `Authorization: Bearer <token>` with scope `events:write`.\n\nSame SQL operation as Connect/gRPC `POST /efelant.v1.Efelant/PublishStatus` on port 18081.",
+        "operationId": "PublishStatus",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "description": "Tenant UUID.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "type",
+            "in": "path",
+            "required": true,
+            "description": "Host context kind (for example `ticket`). URL-decoded.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "externalId",
+            "in": "path",
+            "required": true,
+            "description": "Host record id (for example `T-1`). URL-decoded.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "PublishReply JSON.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishReply"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid JSON, UUID, or arguments. SQLSTATE `22023`, `22P02`, or `23514`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token. SQLSTATE `28000`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but missing scope `events:write`. SQLSTATE `42501`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown path, context, conversation, or API client. SQLSTATE `P0002`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "description": "PublishStatusRequest JSON. Path parameters override matching body fields when both are present.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublishStatusRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/tenants/{tenantId}/select": {
+      "post": {
+        "tags": [
+          "Tenants"
+        ],
+        "summary": "Bind the session to a tenant",
+        "description": "Binds this session to `tenantId`. Later calls that take a tenant from the session use this binding. The caller must already be a member of that tenant.\n\nRequires `Authorization: Bearer <token>` with scope `tenants:read`.\n\nSame SQL operation as Connect/gRPC `POST /efelant.v1.Efelant/SelectTenant` on port 18081.",
+        "operationId": "SelectTenant",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "description": "Tenant UUID.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SelectTenantReply JSON.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SelectTenantReply"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid JSON, UUID, or arguments. SQLSTATE `22023`, `22P02`, or `23514`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token. SQLSTATE `28000`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but missing scope `tenants:read`. SQLSTATE `42501`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown path, context, conversation, or API client. SQLSTATE `P0002`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "description": "SelectTenantRequest JSON. Path parameters override matching body fields when both are present.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SelectTenantRequest"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

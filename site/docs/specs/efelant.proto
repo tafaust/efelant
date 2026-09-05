@@ -1,0 +1,104 @@
+syntax = "proto3";
+package efelant.v1;
+
+service Efelant {
+  rpc Health (HealthRequest) returns (HealthReply);
+  rpc ListTenants (Empty) returns (TenantList);
+  rpc SelectTenant (SelectTenantRequest) returns (SelectTenantReply);
+  rpc OpenContext (OpenContextRequest) returns (Context);
+  rpc GetContext (GetContextRequest) returns (Context);
+  rpc SyncEvents (SyncEventsRequest) returns (EventList);
+  rpc SyncContextEvents (SyncContextEventsRequest) returns (EventList);
+  rpc PublishEvent (PublishEventRequest) returns (PublishReply);
+  rpc PublishStatus (PublishStatusRequest) returns (PublishReply);
+  rpc CreateClient (CreateClientRequest) returns (ClientCreated);
+  rpc ListClients (ListClientsRequest) returns (ClientList);
+  rpc RevokeClient (RevokeClientRequest) returns (Empty);
+}
+
+message Empty {}
+message HealthRequest {}
+message HealthReply { bool ok = 1; string name = 2; }
+message Tenant { string id = 1; string slug = 2; string name = 3; string role = 4; }
+message TenantList { repeated Tenant tenants = 1; }
+message SelectTenantRequest { string tenant_id = 1; }
+message SelectTenantReply { string tenant_id = 1; }
+message OpenContextRequest {
+  string tenant_id = 1;
+  string type = 2;
+  string external_id = 3;
+  string metadata_json = 4;
+}
+message GetContextRequest {
+  string tenant_id = 1;
+  string type = 2;
+  string external_id = 3;
+}
+message Context {
+  string context_id = 1;
+  string conversation_id = 2;
+  string tenant_id = 3;
+  string type = 4;
+  string external_id = 5;
+  string metadata_json = 6;
+}
+message SyncEventsRequest { string conversation_id = 1; int64 after_sequence = 2; }
+message SyncContextEventsRequest {
+  string tenant_id = 1;
+  string type = 2;
+  string external_id = 3;
+  int64 after_sequence = 4;
+}
+message Event {
+  string id = 1;
+  string conversation_id = 2;
+  string tenant_id = 3;
+  int64 sequence = 4;
+  string type = 5;
+  string actor_id = 6;
+  string payload_json = 7;
+  string created_at = 8;
+}
+message EventList { repeated Event events = 1; }
+message PublishEventRequest {
+  string tenant_id = 1;
+  string type = 2;
+  string external_id = 3;
+  string event_type = 4;
+  string message = 5;
+  string metadata_json = 6;
+}
+message PublishStatusRequest {
+  string tenant_id = 1;
+  string type = 2;
+  string external_id = 3;
+  string status = 4;
+  string message = 5;
+  string metadata_json = 6;
+}
+message PublishReply {
+  string event_id = 1;
+  string conversation_id = 2;
+  int64 sequence = 3;
+}
+message CreateClientRequest {
+  string tenant_id = 1;
+  string name = 2;
+  repeated string scopes = 3;
+}
+message ClientCreated {
+  string client_id = 1;
+  string token = 2;
+  string user_id = 3;
+  repeated string scopes = 4;
+}
+message ListClientsRequest { string tenant_id = 1; }
+message Client {
+  string id = 1;
+  string name = 2;
+  repeated string scopes = 3;
+  string created_at = 4;
+  string revoked_at = 5;
+}
+message ClientList { repeated Client clients = 1; }
+message RevokeClientRequest { string client_id = 1; }

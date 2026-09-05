@@ -1,0 +1,1677 @@
+{
+  "source": "database/init/015_api.sql",
+  "servers": {
+    "rest": "http://localhost:18080",
+    "grpc": "http://localhost:18081"
+  },
+  "scopes": [
+    "tenants:read",
+    "contexts:read",
+    "contexts:write",
+    "events:read",
+    "events:write",
+    "clients:write"
+  ],
+  "rest": [
+    {
+      "method": "GET",
+      "path": "/efelant.v1.Efelant.proto",
+      "summary": "protobuf schema",
+      "description": "Protobuf schema from `api.protobuf()`, wrapped as JSON `{ \"proto\": \"…\" }`. Same text as the `efelant.proto` download. Public.",
+      "op": "proto",
+      "rpc": null,
+      "auth": false,
+      "scope": null,
+      "status": 200,
+      "query": [],
+      "request": [],
+      "response": [],
+      "requestType": null,
+      "responseType": null,
+      "params": []
+    },
+    {
+      "method": "GET",
+      "path": "/health",
+      "summary": "Liveness",
+      "description": "Liveness for the REST worker. Returns `ok: true` and `name: efelant` when SQL can run. No bearer token.",
+      "op": "health",
+      "rpc": "Health",
+      "auth": false,
+      "scope": null,
+      "status": 200,
+      "query": [],
+      "request": [],
+      "response": [
+        {
+          "repeated": false,
+          "type": "bool",
+          "name": "ok",
+          "id": 1
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "name",
+          "id": 2
+        }
+      ],
+      "requestType": "HealthRequest",
+      "responseType": "HealthReply",
+      "params": []
+    },
+    {
+      "method": "DELETE",
+      "path": "/v1/clients/{clientId}",
+      "summary": "Revoke an API client",
+      "description": "Revokes an API client. Existing `efl_…` tokens stop authenticating. Returns 404 if the id is unknown.",
+      "op": "revoke_client",
+      "rpc": "RevokeClient",
+      "auth": true,
+      "scope": "clients:write",
+      "status": 200,
+      "query": [],
+      "request": [
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "client_id",
+          "id": 1
+        }
+      ],
+      "response": [],
+      "requestType": "RevokeClientRequest",
+      "responseType": "Empty",
+      "params": [
+        "clientId"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/contexts",
+      "summary": "Open or reuse a context conversation",
+      "description": "Opens or reuses the conversation for (`tenant_id`, `type`, `external_id`). Idempotent: the same triple returns the existing context. `type` and `external_id` are host-defined (for example `ticket` / `T-1`).",
+      "op": "open_context",
+      "rpc": "OpenContext",
+      "auth": true,
+      "scope": "contexts:write",
+      "status": 200,
+      "query": [],
+      "request": [
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "tenant_id",
+          "id": 1
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "type",
+          "id": 2
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "external_id",
+          "id": 3
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "metadata_json",
+          "id": 4
+        }
+      ],
+      "response": [
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "context_id",
+          "id": 1
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "conversation_id",
+          "id": 2
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "tenant_id",
+          "id": 3
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "type",
+          "id": 4
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "external_id",
+          "id": 5
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "metadata_json",
+          "id": 6
+        }
+      ],
+      "requestType": "OpenContextRequest",
+      "responseType": "Context",
+      "params": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/conversations/{conversationId}/events",
+      "summary": "Sync conversation events after a sequence",
+      "description": "Events on a conversation with `sequence` greater than `after`. Omit `after` or pass `0` for the full stream. Ordered by sequence.",
+      "op": "sync_events",
+      "rpc": "SyncEvents",
+      "auth": true,
+      "scope": "events:read",
+      "status": 200,
+      "query": [
+        "after"
+      ],
+      "request": [
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "conversation_id",
+          "id": 1
+        },
+        {
+          "repeated": false,
+          "type": "int64",
+          "name": "after_sequence",
+          "id": 2
+        }
+      ],
+      "response": [
+        {
+          "repeated": true,
+          "type": "Event",
+          "name": "events",
+          "id": 1
+        }
+      ],
+      "requestType": "SyncEventsRequest",
+      "responseType": "EventList",
+      "params": [
+        "conversationId"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/efelant.proto",
+      "summary": "protobuf schema",
+      "description": "Protobuf schema from `api.protobuf()`, wrapped as JSON `{ \"proto\": \"…\" }`. Same text as the `efelant.proto` download. Public.",
+      "op": "proto",
+      "rpc": null,
+      "auth": false,
+      "scope": null,
+      "status": 200,
+      "query": [],
+      "request": [],
+      "response": [],
+      "requestType": null,
+      "responseType": null,
+      "params": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/health",
+      "summary": "Liveness",
+      "description": "Liveness for the REST worker. Returns `ok: true` and `name: efelant` when SQL can run. No bearer token.",
+      "op": "health",
+      "rpc": "Health",
+      "auth": false,
+      "scope": null,
+      "status": 200,
+      "query": [],
+      "request": [],
+      "response": [
+        {
+          "repeated": false,
+          "type": "bool",
+          "name": "ok",
+          "id": 1
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "name",
+          "id": 2
+        }
+      ],
+      "requestType": "HealthRequest",
+      "responseType": "HealthReply",
+      "params": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/openapi.json",
+      "summary": "OpenAPI document",
+      "description": "OpenAPI document from `api.openapi()`. The HTML on this page is generated from the same SQL and is richer (parameters, schemas, status codes).",
+      "op": "openapi",
+      "rpc": null,
+      "auth": false,
+      "scope": null,
+      "status": 200,
+      "query": [],
+      "request": [],
+      "response": [],
+      "requestType": null,
+      "responseType": null,
+      "params": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/tenants",
+      "summary": "List tenants for the caller",
+      "description": "Tenants the caller belongs to, each with `id`, `slug`, `name`, and `role`. A human session sees every membership. An API client sees the tenant it was created for.",
+      "op": "list_tenants",
+      "rpc": "ListTenants",
+      "auth": true,
+      "scope": "tenants:read",
+      "status": 200,
+      "query": [],
+      "request": [],
+      "response": [
+        {
+          "repeated": true,
+          "type": "Tenant",
+          "name": "tenants",
+          "id": 1
+        }
+      ],
+      "requestType": "Empty",
+      "responseType": "TenantList",
+      "params": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/tenants/{tenantId}/clients",
+      "summary": "List API clients",
+      "description": "API clients for the tenant, including `revoked_at` when revoked. Tokens are never listed.",
+      "op": "list_clients",
+      "rpc": "ListClients",
+      "auth": true,
+      "scope": "clients:write",
+      "status": 200,
+      "query": [],
+      "request": [
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "tenant_id",
+          "id": 1
+        }
+      ],
+      "response": [
+        {
+          "repeated": true,
+          "type": "Client",
+          "name": "clients",
+          "id": 1
+        }
+      ],
+      "requestType": "ListClientsRequest",
+      "responseType": "ClientList",
+      "params": [
+        "tenantId"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/tenants/{tenantId}/clients",
+      "summary": "Create an API client (token shown once)",
+      "description": "Creates a tenant-scoped API client. The token (`efl_…`) is in this response once and cannot be fetched again. Only tenant `owner` / `admin`. If `scopes` is omitted, the default integration scopes are applied.",
+      "op": "create_client",
+      "rpc": "CreateClient",
+      "auth": true,
+      "scope": "clients:write",
+      "status": 201,
+      "query": [],
+      "request": [
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "tenant_id",
+          "id": 1
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "name",
+          "id": 2
+        },
+        {
+          "repeated": true,
+          "type": "string",
+          "name": "scopes",
+          "id": 3
+        }
+      ],
+      "response": [
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "client_id",
+          "id": 1
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "token",
+          "id": 2
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "user_id",
+          "id": 3
+        },
+        {
+          "repeated": true,
+          "type": "string",
+          "name": "scopes",
+          "id": 4
+        }
+      ],
+      "requestType": "CreateClientRequest",
+      "responseType": "ClientCreated",
+      "params": [
+        "tenantId"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/tenants/{tenantId}/contexts/{type}/{externalId}",
+      "summary": "Get a context",
+      "description": "Reads an existing context by tenant, type, and external id. Returns 404 if it has not been opened yet.",
+      "op": "get_context",
+      "rpc": "GetContext",
+      "auth": true,
+      "scope": "contexts:read",
+      "status": 200,
+      "query": [],
+      "request": [
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "tenant_id",
+          "id": 1
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "type",
+          "id": 2
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "external_id",
+          "id": 3
+        }
+      ],
+      "response": [
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "context_id",
+          "id": 1
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "conversation_id",
+          "id": 2
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "tenant_id",
+          "id": 3
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "type",
+          "id": 4
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "external_id",
+          "id": 5
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "metadata_json",
+          "id": 6
+        }
+      ],
+      "requestType": "GetContextRequest",
+      "responseType": "Context",
+      "params": [
+        "tenantId",
+        "type",
+        "externalId"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/tenants/{tenantId}/contexts/{type}/{externalId}/events",
+      "summary": "Sync context events after a sequence",
+      "description": "Same as conversation sync, addressed by the context triple (`tenantId`, `type`, `externalId`) instead of `conversationId`.",
+      "op": "sync_context_events",
+      "rpc": "SyncContextEvents",
+      "auth": true,
+      "scope": "events:read",
+      "status": 200,
+      "query": [
+        "after"
+      ],
+      "request": [
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "tenant_id",
+          "id": 1
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "type",
+          "id": 2
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "external_id",
+          "id": 3
+        },
+        {
+          "repeated": false,
+          "type": "int64",
+          "name": "after_sequence",
+          "id": 4
+        }
+      ],
+      "response": [
+        {
+          "repeated": true,
+          "type": "Event",
+          "name": "events",
+          "id": 1
+        }
+      ],
+      "requestType": "SyncContextEventsRequest",
+      "responseType": "EventList",
+      "params": [
+        "tenantId",
+        "type",
+        "externalId"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/tenants/{tenantId}/contexts/{type}/{externalId}/events",
+      "summary": "Publish a domain event",
+      "description": "Appends a domain event to the context conversation. Send `event_type` (or `type` in the JSON body), optional `message`, and optional `metadata` object.",
+      "op": "publish_event",
+      "rpc": "PublishEvent",
+      "auth": true,
+      "scope": "events:write",
+      "status": 200,
+      "query": [],
+      "request": [
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "tenant_id",
+          "id": 1
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "type",
+          "id": 2
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "external_id",
+          "id": 3
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "event_type",
+          "id": 4
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "message",
+          "id": 5
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "metadata_json",
+          "id": 6
+        }
+      ],
+      "response": [
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "event_id",
+          "id": 1
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "conversation_id",
+          "id": 2
+        },
+        {
+          "repeated": false,
+          "type": "int64",
+          "name": "sequence",
+          "id": 3
+        }
+      ],
+      "requestType": "PublishEventRequest",
+      "responseType": "PublishReply",
+      "params": [
+        "tenantId",
+        "type",
+        "externalId"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/tenants/{tenantId}/contexts/{type}/{externalId}/status",
+      "summary": "Publish a status.changed event",
+      "description": "Publishes a `status.changed` event for the context. Host UIs treat `status` as the current state (for example `approved` or `rejected`).",
+      "op": "publish_status",
+      "rpc": "PublishStatus",
+      "auth": true,
+      "scope": "events:write",
+      "status": 200,
+      "query": [],
+      "request": [
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "tenant_id",
+          "id": 1
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "type",
+          "id": 2
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "external_id",
+          "id": 3
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "status",
+          "id": 4
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "message",
+          "id": 5
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "metadata_json",
+          "id": 6
+        }
+      ],
+      "response": [
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "event_id",
+          "id": 1
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "conversation_id",
+          "id": 2
+        },
+        {
+          "repeated": false,
+          "type": "int64",
+          "name": "sequence",
+          "id": 3
+        }
+      ],
+      "requestType": "PublishStatusRequest",
+      "responseType": "PublishReply",
+      "params": [
+        "tenantId",
+        "type",
+        "externalId"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/tenants/{tenantId}/select",
+      "summary": "Bind the session to a tenant",
+      "description": "Binds this session to `tenantId`. Later calls that take a tenant from the session use this binding. The caller must already be a member of that tenant.",
+      "op": "select_tenant",
+      "rpc": "SelectTenant",
+      "auth": true,
+      "scope": "tenants:read",
+      "status": 200,
+      "query": [],
+      "request": [
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "tenant_id",
+          "id": 1
+        }
+      ],
+      "response": [
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "tenant_id",
+          "id": 1
+        }
+      ],
+      "requestType": "SelectTenantRequest",
+      "responseType": "SelectTenantReply",
+      "params": [
+        "tenantId"
+      ]
+    }
+  ],
+  "grpc": [
+    {
+      "name": "Health",
+      "request": "HealthRequest",
+      "response": "HealthReply",
+      "op": "health",
+      "auth": false,
+      "scope": null,
+      "description": "Liveness for the REST worker. Returns `ok: true` and `name: efelant` when SQL can run. No bearer token.",
+      "requestFields": [],
+      "responseFields": [
+        {
+          "repeated": false,
+          "type": "bool",
+          "name": "ok",
+          "id": 1
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "name",
+          "id": 2
+        }
+      ]
+    },
+    {
+      "name": "ListTenants",
+      "request": "Empty",
+      "response": "TenantList",
+      "op": "list_tenants",
+      "auth": true,
+      "scope": "tenants:read",
+      "description": "Tenants the caller belongs to, each with `id`, `slug`, `name`, and `role`. A human session sees every membership. An API client sees the tenant it was created for.",
+      "requestFields": [],
+      "responseFields": [
+        {
+          "repeated": true,
+          "type": "Tenant",
+          "name": "tenants",
+          "id": 1
+        }
+      ]
+    },
+    {
+      "name": "SelectTenant",
+      "request": "SelectTenantRequest",
+      "response": "SelectTenantReply",
+      "op": "select_tenant",
+      "auth": true,
+      "scope": "tenants:read",
+      "description": "Binds this session to `tenantId`. Later calls that take a tenant from the session use this binding. The caller must already be a member of that tenant.",
+      "requestFields": [
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "tenant_id",
+          "id": 1
+        }
+      ],
+      "responseFields": [
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "tenant_id",
+          "id": 1
+        }
+      ]
+    },
+    {
+      "name": "OpenContext",
+      "request": "OpenContextRequest",
+      "response": "Context",
+      "op": "open_context",
+      "auth": true,
+      "scope": "contexts:write",
+      "description": "Opens or reuses the conversation for (`tenant_id`, `type`, `external_id`). Idempotent: the same triple returns the existing context. `type` and `external_id` are host-defined (for example `ticket` / `T-1`).",
+      "requestFields": [
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "tenant_id",
+          "id": 1
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "type",
+          "id": 2
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "external_id",
+          "id": 3
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "metadata_json",
+          "id": 4
+        }
+      ],
+      "responseFields": [
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "context_id",
+          "id": 1
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "conversation_id",
+          "id": 2
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "tenant_id",
+          "id": 3
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "type",
+          "id": 4
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "external_id",
+          "id": 5
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "metadata_json",
+          "id": 6
+        }
+      ]
+    },
+    {
+      "name": "GetContext",
+      "request": "GetContextRequest",
+      "response": "Context",
+      "op": "get_context",
+      "auth": true,
+      "scope": "contexts:read",
+      "description": "Reads an existing context by tenant, type, and external id. Returns 404 if it has not been opened yet.",
+      "requestFields": [
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "tenant_id",
+          "id": 1
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "type",
+          "id": 2
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "external_id",
+          "id": 3
+        }
+      ],
+      "responseFields": [
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "context_id",
+          "id": 1
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "conversation_id",
+          "id": 2
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "tenant_id",
+          "id": 3
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "type",
+          "id": 4
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "external_id",
+          "id": 5
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "metadata_json",
+          "id": 6
+        }
+      ]
+    },
+    {
+      "name": "SyncEvents",
+      "request": "SyncEventsRequest",
+      "response": "EventList",
+      "op": "sync_events",
+      "auth": true,
+      "scope": "events:read",
+      "description": "Events on a conversation with `sequence` greater than `after`. Omit `after` or pass `0` for the full stream. Ordered by sequence.",
+      "requestFields": [
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "conversation_id",
+          "id": 1
+        },
+        {
+          "repeated": false,
+          "type": "int64",
+          "name": "after_sequence",
+          "id": 2
+        }
+      ],
+      "responseFields": [
+        {
+          "repeated": true,
+          "type": "Event",
+          "name": "events",
+          "id": 1
+        }
+      ]
+    },
+    {
+      "name": "SyncContextEvents",
+      "request": "SyncContextEventsRequest",
+      "response": "EventList",
+      "op": "sync_context_events",
+      "auth": true,
+      "scope": "events:read",
+      "description": "Same as conversation sync, addressed by the context triple (`tenantId`, `type`, `externalId`) instead of `conversationId`.",
+      "requestFields": [
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "tenant_id",
+          "id": 1
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "type",
+          "id": 2
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "external_id",
+          "id": 3
+        },
+        {
+          "repeated": false,
+          "type": "int64",
+          "name": "after_sequence",
+          "id": 4
+        }
+      ],
+      "responseFields": [
+        {
+          "repeated": true,
+          "type": "Event",
+          "name": "events",
+          "id": 1
+        }
+      ]
+    },
+    {
+      "name": "PublishEvent",
+      "request": "PublishEventRequest",
+      "response": "PublishReply",
+      "op": "publish_event",
+      "auth": true,
+      "scope": "events:write",
+      "description": "Appends a domain event to the context conversation. Send `event_type` (or `type` in the JSON body), optional `message`, and optional `metadata` object.",
+      "requestFields": [
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "tenant_id",
+          "id": 1
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "type",
+          "id": 2
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "external_id",
+          "id": 3
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "event_type",
+          "id": 4
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "message",
+          "id": 5
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "metadata_json",
+          "id": 6
+        }
+      ],
+      "responseFields": [
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "event_id",
+          "id": 1
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "conversation_id",
+          "id": 2
+        },
+        {
+          "repeated": false,
+          "type": "int64",
+          "name": "sequence",
+          "id": 3
+        }
+      ]
+    },
+    {
+      "name": "PublishStatus",
+      "request": "PublishStatusRequest",
+      "response": "PublishReply",
+      "op": "publish_status",
+      "auth": true,
+      "scope": "events:write",
+      "description": "Publishes a `status.changed` event for the context. Host UIs treat `status` as the current state (for example `approved` or `rejected`).",
+      "requestFields": [
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "tenant_id",
+          "id": 1
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "type",
+          "id": 2
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "external_id",
+          "id": 3
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "status",
+          "id": 4
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "message",
+          "id": 5
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "metadata_json",
+          "id": 6
+        }
+      ],
+      "responseFields": [
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "event_id",
+          "id": 1
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "conversation_id",
+          "id": 2
+        },
+        {
+          "repeated": false,
+          "type": "int64",
+          "name": "sequence",
+          "id": 3
+        }
+      ]
+    },
+    {
+      "name": "CreateClient",
+      "request": "CreateClientRequest",
+      "response": "ClientCreated",
+      "op": "create_client",
+      "auth": true,
+      "scope": "clients:write",
+      "description": "Creates a tenant-scoped API client. The token (`efl_…`) is in this response once and cannot be fetched again. Only tenant `owner` / `admin`. If `scopes` is omitted, the default integration scopes are applied.",
+      "requestFields": [
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "tenant_id",
+          "id": 1
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "name",
+          "id": 2
+        },
+        {
+          "repeated": true,
+          "type": "string",
+          "name": "scopes",
+          "id": 3
+        }
+      ],
+      "responseFields": [
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "client_id",
+          "id": 1
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "token",
+          "id": 2
+        },
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "user_id",
+          "id": 3
+        },
+        {
+          "repeated": true,
+          "type": "string",
+          "name": "scopes",
+          "id": 4
+        }
+      ]
+    },
+    {
+      "name": "ListClients",
+      "request": "ListClientsRequest",
+      "response": "ClientList",
+      "op": "list_clients",
+      "auth": true,
+      "scope": "clients:write",
+      "description": "API clients for the tenant, including `revoked_at` when revoked. Tokens are never listed.",
+      "requestFields": [
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "tenant_id",
+          "id": 1
+        }
+      ],
+      "responseFields": [
+        {
+          "repeated": true,
+          "type": "Client",
+          "name": "clients",
+          "id": 1
+        }
+      ]
+    },
+    {
+      "name": "RevokeClient",
+      "request": "RevokeClientRequest",
+      "response": "Empty",
+      "op": "revoke_client",
+      "auth": true,
+      "scope": "clients:write",
+      "description": "Revokes an API client. Existing `efl_…` tokens stop authenticating. Returns 404 if the id is unknown.",
+      "requestFields": [
+        {
+          "repeated": false,
+          "type": "string",
+          "name": "client_id",
+          "id": 1
+        }
+      ],
+      "responseFields": []
+    }
+  ],
+  "messages": {
+    "Empty": [],
+    "HealthRequest": [],
+    "HealthReply": [
+      {
+        "repeated": false,
+        "type": "bool",
+        "name": "ok",
+        "id": 1
+      },
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "name",
+        "id": 2
+      }
+    ],
+    "Tenant": [
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "id",
+        "id": 1
+      },
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "slug",
+        "id": 2
+      },
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "name",
+        "id": 3
+      },
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "role",
+        "id": 4
+      }
+    ],
+    "TenantList": [
+      {
+        "repeated": true,
+        "type": "Tenant",
+        "name": "tenants",
+        "id": 1
+      }
+    ],
+    "SelectTenantRequest": [
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "tenant_id",
+        "id": 1
+      }
+    ],
+    "SelectTenantReply": [
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "tenant_id",
+        "id": 1
+      }
+    ],
+    "OpenContextRequest": [
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "tenant_id",
+        "id": 1
+      },
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "type",
+        "id": 2
+      },
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "external_id",
+        "id": 3
+      },
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "metadata_json",
+        "id": 4
+      }
+    ],
+    "GetContextRequest": [
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "tenant_id",
+        "id": 1
+      },
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "type",
+        "id": 2
+      },
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "external_id",
+        "id": 3
+      }
+    ],
+    "Context": [
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "context_id",
+        "id": 1
+      },
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "conversation_id",
+        "id": 2
+      },
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "tenant_id",
+        "id": 3
+      },
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "type",
+        "id": 4
+      },
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "external_id",
+        "id": 5
+      },
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "metadata_json",
+        "id": 6
+      }
+    ],
+    "SyncEventsRequest": [
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "conversation_id",
+        "id": 1
+      },
+      {
+        "repeated": false,
+        "type": "int64",
+        "name": "after_sequence",
+        "id": 2
+      }
+    ],
+    "SyncContextEventsRequest": [
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "tenant_id",
+        "id": 1
+      },
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "type",
+        "id": 2
+      },
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "external_id",
+        "id": 3
+      },
+      {
+        "repeated": false,
+        "type": "int64",
+        "name": "after_sequence",
+        "id": 4
+      }
+    ],
+    "Event": [
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "id",
+        "id": 1
+      },
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "conversation_id",
+        "id": 2
+      },
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "tenant_id",
+        "id": 3
+      },
+      {
+        "repeated": false,
+        "type": "int64",
+        "name": "sequence",
+        "id": 4
+      },
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "type",
+        "id": 5
+      },
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "actor_id",
+        "id": 6
+      },
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "payload_json",
+        "id": 7
+      },
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "created_at",
+        "id": 8
+      }
+    ],
+    "EventList": [
+      {
+        "repeated": true,
+        "type": "Event",
+        "name": "events",
+        "id": 1
+      }
+    ],
+    "PublishEventRequest": [
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "tenant_id",
+        "id": 1
+      },
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "type",
+        "id": 2
+      },
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "external_id",
+        "id": 3
+      },
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "event_type",
+        "id": 4
+      },
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "message",
+        "id": 5
+      },
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "metadata_json",
+        "id": 6
+      }
+    ],
+    "PublishStatusRequest": [
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "tenant_id",
+        "id": 1
+      },
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "type",
+        "id": 2
+      },
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "external_id",
+        "id": 3
+      },
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "status",
+        "id": 4
+      },
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "message",
+        "id": 5
+      },
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "metadata_json",
+        "id": 6
+      }
+    ],
+    "PublishReply": [
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "event_id",
+        "id": 1
+      },
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "conversation_id",
+        "id": 2
+      },
+      {
+        "repeated": false,
+        "type": "int64",
+        "name": "sequence",
+        "id": 3
+      }
+    ],
+    "CreateClientRequest": [
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "tenant_id",
+        "id": 1
+      },
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "name",
+        "id": 2
+      },
+      {
+        "repeated": true,
+        "type": "string",
+        "name": "scopes",
+        "id": 3
+      }
+    ],
+    "ClientCreated": [
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "client_id",
+        "id": 1
+      },
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "token",
+        "id": 2
+      },
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "user_id",
+        "id": 3
+      },
+      {
+        "repeated": true,
+        "type": "string",
+        "name": "scopes",
+        "id": 4
+      }
+    ],
+    "ListClientsRequest": [
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "tenant_id",
+        "id": 1
+      }
+    ],
+    "Client": [
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "id",
+        "id": 1
+      },
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "name",
+        "id": 2
+      },
+      {
+        "repeated": true,
+        "type": "string",
+        "name": "scopes",
+        "id": 3
+      },
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "created_at",
+        "id": 4
+      },
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "revoked_at",
+        "id": 5
+      }
+    ],
+    "ClientList": [
+      {
+        "repeated": true,
+        "type": "Client",
+        "name": "clients",
+        "id": 1
+      }
+    ],
+    "RevokeClientRequest": [
+      {
+        "repeated": false,
+        "type": "string",
+        "name": "client_id",
+        "id": 1
+      }
+    ]
+  },
+  "proto": "syntax = \"proto3\";\npackage efelant.v1;\n\nservice Efelant {\n  rpc Health (HealthRequest) returns (HealthReply);\n  rpc ListTenants (Empty) returns (TenantList);\n  rpc SelectTenant (SelectTenantRequest) returns (SelectTenantReply);\n  rpc OpenContext (OpenContextRequest) returns (Context);\n  rpc GetContext (GetContextRequest) returns (Context);\n  rpc SyncEvents (SyncEventsRequest) returns (EventList);\n  rpc SyncContextEvents (SyncContextEventsRequest) returns (EventList);\n  rpc PublishEvent (PublishEventRequest) returns (PublishReply);\n  rpc PublishStatus (PublishStatusRequest) returns (PublishReply);\n  rpc CreateClient (CreateClientRequest) returns (ClientCreated);\n  rpc ListClients (ListClientsRequest) returns (ClientList);\n  rpc RevokeClient (RevokeClientRequest) returns (Empty);\n}\n\nmessage Empty {}\nmessage HealthRequest {}\nmessage HealthReply { bool ok = 1; string name = 2; }\nmessage Tenant { string id = 1; string slug = 2; string name = 3; string role = 4; }\nmessage TenantList { repeated Tenant tenants = 1; }\nmessage SelectTenantRequest { string tenant_id = 1; }\nmessage SelectTenantReply { string tenant_id = 1; }\nmessage OpenContextRequest {\n  string tenant_id = 1;\n  string type = 2;\n  string external_id = 3;\n  string metadata_json = 4;\n}\nmessage GetContextRequest {\n  string tenant_id = 1;\n  string type = 2;\n  string external_id = 3;\n}\nmessage Context {\n  string context_id = 1;\n  string conversation_id = 2;\n  string tenant_id = 3;\n  string type = 4;\n  string external_id = 5;\n  string metadata_json = 6;\n}\nmessage SyncEventsRequest { string conversation_id = 1; int64 after_sequence = 2; }\nmessage SyncContextEventsRequest {\n  string tenant_id = 1;\n  string type = 2;\n  string external_id = 3;\n  int64 after_sequence = 4;\n}\nmessage Event {\n  string id = 1;\n  string conversation_id = 2;\n  string tenant_id = 3;\n  int64 sequence = 4;\n  string type = 5;\n  string actor_id = 6;\n  string payload_json = 7;\n  string created_at = 8;\n}\nmessage EventList { repeated Event events = 1; }\nmessage PublishEventRequest {\n  string tenant_id = 1;\n  string type = 2;\n  string external_id = 3;\n  string event_type = 4;\n  string message = 5;\n  string metadata_json = 6;\n}\nmessage PublishStatusRequest {\n  string tenant_id = 1;\n  string type = 2;\n  string external_id = 3;\n  string status = 4;\n  string message = 5;\n  string metadata_json = 6;\n}\nmessage PublishReply {\n  string event_id = 1;\n  string conversation_id = 2;\n  int64 sequence = 3;\n}\nmessage CreateClientRequest {\n  string tenant_id = 1;\n  string name = 2;\n  repeated string scopes = 3;\n}\nmessage ClientCreated {\n  string client_id = 1;\n  string token = 2;\n  string user_id = 3;\n  repeated string scopes = 4;\n}\nmessage ListClientsRequest { string tenant_id = 1; }\nmessage Client {\n  string id = 1;\n  string name = 2;\n  repeated string scopes = 3;\n  string created_at = 4;\n  string revoked_at = 5;\n}\nmessage ClientList { repeated Client clients = 1; }\nmessage RevokeClientRequest { string client_id = 1; }"
+}

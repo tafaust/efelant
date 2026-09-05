@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SDKs — efelant</title>
+  <meta name="description" content="TypeScript, JavaScript, Stencil, and Flutter SDKs for Efelant." />
+  <link rel="icon" href="../media/07-favicon-dark.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/site.css" />
+  <style>
+    :root { --ef-font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif; --ef-font-mono: "IBM Plex Mono", ui-monospace, monospace; }
+  </style>
+  <script src="../js/theme.js"></script>
+</head>
+<body data-efelant-theme="primary">
+  <header class="mast">
+    <div class="wrap mast-inner">
+      <a class="brand" href="../">
+        <img src="../media/03-app-icon-dark.png" alt="" width="32" height="32" />
+        <span><span class="e">e</span>felant</span>
+      </a>
+      <nav class="nav" data-nav>
+        <a href="./">Docs</a>
+        <a href="api.html">API</a>
+        <a class="nav-cta" href="quickstart.html">Get started</a>
+      </nav>
+      <button class="menu" type="button" data-menu aria-label="Open menu">Menu</button>
+    </div>
+  </header>
+
+  <div class="docs-shell">
+    <aside class="side">
+      <div class="side-group">
+        <p class="side-label">Start</p>
+        <a href="./">Introduction</a>
+        <a href="quickstart.html">Quickstart</a>
+        <a href="use-cases.html">Use cases</a>
+        <a href="status.html">Readiness</a>
+        <a href="license.html">License</a>
+      </div>
+      <div class="side-group">
+        <p class="side-label">Platform</p>
+        <a href="embedding.html">Embedding</a>
+        <a href="api.html">REST / gRPC</a>
+        <a href="deployment.html">Self-host</a>
+      </div>
+      <div class="side-group">
+        <p class="side-label">Design</p>
+        <a href="sdk.html" aria-current="page">SDKs</a>
+        <a href="styles.html">Styles</a>
+      </div>
+    </aside>
+
+    <article class="prose">
+      <h1>SDKs</h1>
+      <p class="sub">Hosts embed Efelant through packages. Core stays in PostgreSQL.</p>
+      <p>There is no Storybook. The visual catalog for tokens and component chrome is <a href="styles.html">Styles</a>. How to attach a conversation to a domain object: <a href="embedding.html">Embedding</a>.</p>
+
+      <h2 id="packages">Packages</h2>
+      <table>
+        <thead>
+          <tr><th>package</th><th>import</th><th>what it is</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>@efelant/tokens</code></td><td>CSS / JS / Dart</td><td>Style Dictionary output</td></tr>
+          <tr><td><code>@efelant/client</code></td><td>TypeScript</td><td>function API over a transport</td></tr>
+          <tr><td><code>@efelant/client-js</code></td><td>ESM / CJS / <code>Efelant</code> global</td><td>bundled <code>@efelant/client</code></td></tr>
+          <tr><td><code>@efelant/components</code></td><td><code>&lt;efelant-*&gt;</code></td><td>Stencil custom elements</td></tr>
+          <tr><td><code>efelant_flutter</code></td><td>Dart</td><td>widgets + <code>EfelantClient</code></td></tr>
+        </tbody>
+      </table>
+      <pre data-lang="bash"><code>./scripts/packages.sh              # tokens → clients → Stencil → Flutter
+./scripts/packages.sh clients      # TypeScript + JavaScript only
+./scripts/packages.sh components   # tokens, then Stencil + Flutter</code></pre>
+
+      <h2 id="typescript">TypeScript</h2>
+      <pre data-lang="ts"><code>import { EfelantClient, createGatewayTransport } from "@efelant/client";
+
+const client = new EfelantClient({
+  transport: createGatewayTransport("/ws"),
+});
+await client.resume(token);</code></pre>
+      <p>Browsers cannot speak the PostgreSQL wire protocol. Use <code>createGatewayTransport</code>. <code>createMemoryTransport()</code> is the same function names in memory. The landing-page demo switches Memory / Local / Custom host, then <code>auth.list_tenants</code>.</p>
+      <table>
+        <thead>
+          <tr><th>method</th><th>SQL</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>login</code> / <code>resume</code> / <code>logout</code></td><td><code>auth.login</code> / <code>auth.resume_session</code> / <code>auth.logout</code></td></tr>
+          <tr><td><code>listTenants</code> / <code>selectTenant</code></td><td><code>auth.list_tenants</code> / <code>auth.select_tenant</code></td></tr>
+          <tr><td><code>openContext</code></td><td><code>efelant.open_context</code></td></tr>
+          <tr><td><code>syncEvents</code> / <code>syncContext</code></td><td><code>efelant.sync_events</code> / <code>efelant.sync_context_events</code></td></tr>
+          <tr><td><code>getConversations</code> / <code>sendMessage</code></td><td><code>chat.get_conversations</code> / <code>chat.send_message</code></td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="javascript">JavaScript bundle</h2>
+      <p><code>@efelant/client-js</code> is the same client: <code>dist/efelant.esm.js</code>, <code>dist/efelant.cjs.js</code>, <code>dist/efelant.global.js</code>.</p>
+      <pre data-lang="html"><code>&lt;script type="module" src="@efelant/client-js/dist/efelant.esm.js"&gt;&lt;/script&gt;</code></pre>
+
+      <h2 id="stencil">Web components</h2>
+      <p>Custom elements. They work from HTML, Vue, Angular, and Svelte. No React package ships from this repo. Set <code>data-efelant-theme</code> on a parent.</p>
+      <table>
+        <thead>
+          <tr><th>tag</th><th>props</th><th>events</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>&lt;efelant-conversation&gt;</code></td><td><code>tenant-id</code>, <code>conversation-id</code>, <code>context-type</code>, <code>external-id</code></td><td>—</td></tr>
+          <tr><td><code>&lt;efelant-conversation-list&gt;</code></td><td><code>tenant-id</code></td><td>—</td></tr>
+          <tr><td><code>&lt;efelant-context-feed&gt;</code></td><td><code>tenant-id</code>, <code>context-type</code>, <code>external-id</code></td><td>—</td></tr>
+          <tr><td><code>&lt;efelant-composer&gt;</code></td><td><code>placeholder</code>, <code>disabled</code></td><td><code>efelantSend</code></td></tr>
+          <tr><td><code>&lt;efelant-status-event&gt;</code></td><td><code>status</code>, <code>message</code></td><td>—</td></tr>
+          <tr><td><code>&lt;efelant-unread-badge&gt;</code></td><td><code>count</code></td><td>—</td></tr>
+        </tbody>
+      </table>
+      <pre data-lang="html"><code>&lt;efelant-conversation tenant-id="…" context-type="access_request" external-id="AR-123"&gt;
+  &lt;efelant-composer slot="composer" placeholder="Message…"&gt;&lt;/efelant-composer&gt;
+&lt;/efelant-conversation&gt;</code></pre>
+      <p>Stencil UI is not pixel-shared with Flutter. Shared contracts are event names, models, and generated tokens.</p>
+
+      <h2 id="flutter">Flutter</h2>
+      <p>The messenger in <code>app/</code> depends on <code>efelant_flutter</code>. Host apps import the same widgets.</p>
+      <pre data-lang="dart"><code>EfelantConversation(
+  tenantId: tenantId,
+  context: EfelantContext(
+    type: 'access_request',
+    externalId: accessRequestId,
+  ),
+)</code></pre>
+      <p>Widgets: <code>EfelantConversation</code>, <code>EfelantConversationList</code>, <code>EfelantContextFeed</code>, <code>EfelantComposer</code>, <code>EfelantStatusEvent</code>, <code>EfelantUnreadBadge</code>. Theme: <code>buildEfelantTheme(theme: EfelantThemeId.primary)</code>.</p>
+
+      <h2 id="http">REST and gRPC</h2>
+      <p>Runtimes that cannot speak PostgreSQL use the extensions. See <a href="api.html">REST / gRPC</a>.</p>
+    </article>
+
+    <nav class="toc" aria-label="On this page">
+      <h3>On this page</h3>
+      <a href="#packages">Packages</a>
+      <a href="#typescript">TypeScript</a>
+      <a href="#javascript">JavaScript</a>
+      <a href="#stencil">Web components</a>
+      <a href="#flutter">Flutter</a>
+      <a href="#http">REST / gRPC</a>
+    </nav>
+  </div>
+
+  <footer class="wrap foot">
+    <span>© 2026 efelant · <a href="../LICENSE.txt">AGPL-3.0</a></span>
+    <span><a href="../">Home</a> · <a href="https://github.com/tafaust/efelant">Source</a></span>
+  </footer>
+  <script src="../js/site.js"></script>
+</body>
+</html>

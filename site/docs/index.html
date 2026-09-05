@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Introduction — efelant</title>
+  <meta name="description" content="Introduction to Efelant, a PostgreSQL-native communication platform." />
+  <link rel="icon" href="../media/07-favicon-dark.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/site.css" />
+  <style>
+    :root { --ef-font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif; --ef-font-mono: "IBM Plex Mono", ui-monospace, monospace; }
+  </style>
+  <script src="../js/theme.js"></script>
+</head>
+<body data-efelant-theme="primary">
+  <header class="mast">
+    <div class="wrap mast-inner">
+      <a class="brand" href="../">
+        <img src="../media/03-app-icon-dark.png" alt="" width="32" height="32" />
+        <span><span class="e">e</span>felant</span>
+      </a>
+      <nav class="nav" data-nav>
+        <a href="./" aria-current="page">Docs</a>
+        <a href="api.html">API</a>
+        <a class="nav-cta" href="quickstart.html">Get started</a>
+      </nav>
+      <button class="menu" type="button" data-menu aria-label="Open menu">Menu</button>
+    </div>
+  </header>
+
+  <div class="docs-shell">
+    <aside class="side">
+      <div class="side-group">
+        <p class="side-label">Start</p>
+        <a href="./" aria-current="page">Introduction</a>
+        <a href="quickstart.html">Quickstart</a>
+        <a href="use-cases.html">Use cases</a>
+        <a href="status.html">Readiness</a>
+        <a href="license.html">License</a>
+      </div>
+      <div class="side-group">
+        <p class="side-label">Platform</p>
+        <a href="embedding.html">Embedding</a>
+        <a href="api.html">REST / gRPC</a>
+        <a href="deployment.html">Self-host</a>
+      </div>
+      <div class="side-group">
+        <p class="side-label">Design</p>
+        <a href="sdk.html">SDKs</a>
+        <a href="styles.html">Styles</a>
+      </div>
+    </aside>
+
+    <article class="prose">
+      <h1>Introduction</h1>
+      <p class="sub">The communication layer for PostgreSQL applications.</p>
+      <div class="doc-actions">
+        <a href="quickstart.html">Get started</a>
+        <a href="deployment.html">Self-host</a>
+        <a href="status.html">Readiness</a>
+      </div>
+      <p>Efelant Core runs entirely in PostgreSQL. It is a standalone messenger and an embeddable conversation / activity-feed layer. There is no Node, Nest, Express, FastAPI, Redis, or Kafka in Core. REST and gRPC for third-party apps are <a href="api.html">PostgreSQL extensions</a> that call the same SQL functions.</p>
+      <p>Clients synchronize with <code>conversation_id</code> + <code>last_sequence</code>. LISTEN/NOTIFY only wakes the client. Message bodies are encrypted on the device. Private keys never leave it.</p>
+
+      <h2 id="features">Features</h2>
+      <p>Same core, several shapes — not separate products.</p>
+      <div class="grid">
+        <article class="card"><h3>Function API</h3><p>Stored functions + RLS. <code>efelant_app</code> has no table DML.</p></article>
+        <article class="card"><h3>Tenants &amp; contexts</h3><p>Attach chat to <code>type</code> + <code>external_id</code> without importing host tables.</p></article>
+        <article class="card"><h3>Durable events</h3><p>Status and messages share one per-conversation sequence.</p></article>
+        <article class="card"><h3>Presence</h3><p>Online means the app is heartbeating, not “a session still exists.”</p></article>
+        <article class="card"><h3>Embed SDKs</h3><p><a href="sdk.html">Flutter, Stencil, JS</a>. No React layer. <a href="styles.html">Token catalog</a> instead of Storybook.</p></article>
+        <article class="card"><h3>REST / gRPC</h3><p>Background workers in Postgres. Same authorization as SQL.</p></article>
+      </div>
+
+      <h2 id="not-yet">What this is not yet</h2>
+      <p>Local / single-tenant preview is usable. B2B production is not. The landing demo can switch hosts and tenants. The Flutter app has no tenant switcher, invites, or SSO. E2EE is a first step, not a Double Ratchet. See <a href="status.html">readiness</a>.</p>
+    </article>
+
+    <nav class="toc" aria-label="On this page">
+      <h3>On this page</h3>
+      <a href="#features">Features</a>
+      <a href="#not-yet">What this is not yet</a>
+    </nav>
+  </div>
+
+  <footer class="wrap foot">
+    <span>© 2026 efelant · <a href="../LICENSE.txt">AGPL-3.0</a></span>
+    <span><a href="../">Home</a> · <a href="https://github.com/tafaust/efelant">Source</a></span>
+  </footer>
+  <script src="../js/site.js"></script>
+</body>
+</html>

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Self-host — efelant</title>
+  <meta name="description" content="Run Efelant on your own hardware or VM with Docker, Compose, Swarm, Helm, or Kustomize." />
+  <link rel="icon" href="../media/07-favicon-dark.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/site.css" />
+  <style>
+    :root { --ef-font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif; --ef-font-mono: "IBM Plex Mono", ui-monospace, monospace; }
+  </style>
+  <script src="../js/theme.js"></script>
+</head>
+<body data-efelant-theme="primary">
+  <header class="mast">
+    <div class="wrap mast-inner">
+      <a class="brand" href="../">
+        <img src="../media/03-app-icon-dark.png" alt="" width="32" height="32" />
+        <span><span class="e">e</span>felant</span>
+      </a>
+      <nav class="nav" data-nav>
+        <a href="./">Docs</a>
+        <a href="api.html">API</a>
+        <a class="nav-cta" href="quickstart.html">Get started</a>
+      </nav>
+      <button class="menu" type="button" data-menu aria-label="Open menu">Menu</button>
+    </div>
+  </header>
+
+  <div class="docs-shell">
+    <aside class="side">
+      <div class="side-group">
+        <p class="side-label">Start</p>
+        <a href="./">Introduction</a>
+        <a href="quickstart.html">Quickstart</a>
+        <a href="use-cases.html">Use cases</a>
+        <a href="status.html">Readiness</a>
+        <a href="license.html">License</a>
+      </div>
+      <div class="side-group">
+        <p class="side-label">Platform</p>
+        <a href="embedding.html">Embedding</a>
+        <a href="api.html">REST / gRPC</a>
+        <a href="deployment.html" aria-current="page">Self-host</a>
+      </div>
+      <div class="side-group">
+        <p class="side-label">Design</p>
+        <a href="sdk.html">SDKs</a>
+        <a href="styles.html">Styles</a>
+      </div>
+    </aside>
+
+    <article class="prose">
+      <h1>Self-host</h1>
+      <p class="sub">Run Efelant on hardware or a VM you control.</p>
+      <p>Core is PostgreSQL. The Flutter web client and WebSocket gateway are optional adapters for browsers. There is no application server to operate. Do not invent custom PostgreSQL HA — use StackGres, CloudNativePG, Patroni, or a managed service.</p>
+
+      <h2 id="pieces">What you run</h2>
+      <div class="grid">
+        <article class="card"><h3>postgres</h3><p>SQL, REST <code>:18080</code>, gRPC-JSON <code>:18081</code>. Always.</p></article>
+        <article class="card"><h3>web-gateway</h3><p>Browser WebSocket adapter. Skip if clients use the Postgres wire.</p></article>
+        <article class="card"><h3>web</h3><p>Standalone Flutter messenger UI. Skip if you only embed.</p></article>
+        <article class="card"><h3>site</h3><p>This documentation site. Optional.</p></article>
+      </div>
+      <p>Images live at <code>ghcr.io/tafaust/efelant/&lt;name&gt;</code>. Tags: <code>0</code>, <code>0.1</code>, <code>0.1.0</code>, <code>latest</code>. Commands below pin <code>0.1.0</code>. See <a href="#ghcr">GHCR</a>.</p>
+      <p>Native clients talk PostgreSQL directly (<code>efelant_app</code>, function EXECUTE only). REST and gRPC-JSON are background workers inside Postgres.</p>
+
+      <h2 id="docker">Docker</h2>
+      <p>Single machine, no Compose file. Generate passwords with <code>./scripts/new-secrets.sh</code>. The image entrypoint mints a self-signed cert; pass the same <code>-c</code> flags Compose uses so REST/gRPC load. Init SQL runs on the first empty volume. Later: <code>./scripts/migrate.sh</code>. Do not publish <code>5432</code> on a public NIC.</p>
+      <pre data-lang="bash"><code>docker network create efelant
+docker volume create efelant_pgdata
+
+docker run -d --name efelant-postgres --network efelant \
+  --restart unless-stopped \
+  -v efelant_pgdata:/var/lib/postgresql/data \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD="$POSTGRES_PASSWORD" \
+  -e POSTGRES_DB=efelant \
+  -e EFELANT_APP_PASSWORD="$EFELANT_APP_PASSWORD" \
+  -e EFELANT_MIGRATOR_PASSWORD="$EFELANT_MIGRATOR_PASSWORD" \
+  -e EFELANT_SEED=0 \
+  -p 5432:5432 -p 18080:18080 -p 18081:18081 \
+  ghcr.io/tafaust/efelant/postgres:0.1.0 \
+  postgres \
+  -c listen_addresses=* \
+  -c ssl=on \
+  -c ssl_cert_file=/var/lib/postgresql/certs/server.crt \
+  -c ssl_key_file=/var/lib/postgresql/certs/server.key \
+  -c password_encryption=scram-sha-256 \
+  -c shared_preload_libraries=pg_cron,efelant_rest,efelant_grpc \
+  -c cron.database_name=efelant
+
+docker run -d --name efelant-web-gateway --network efelant \
+  --restart unless-stopped \
+  -e EFELANT_DB_HOST=efelant-postgres \
+  -e EFELANT_DB_PORT=5432 \
+  -e EFELANT_DB_NAME=efelant \
+  -e EFELANT_DB_USER=efelant_app \
+  -e EFELANT_DB_PASSWORD="$EFELANT_APP_PASSWORD" \
+  -e EFELANT_DB_SSLMODE=disable \
+  -e EFELANT_WS_PORT=5433 \
+  -e EFELANT_WS_ORIGINS=https://chat.example.com \
+  -p 5433:5433 \
+  ghcr.io/tafaust/efelant/web-gateway:0.1.0
+
+docker run -d --name efelant-web --network efelant \
+  --restart unless-stopped \
+  -p 8080:80 \
+  ghcr.io/tafaust/efelant/web:0.1.0</code></pre>
+
+      <h2 id="compose">Docker Compose</h2>
+      <p>Fastest path on a VM. Local trial from the repository root:</p>
+      <pre data-lang="bash"><code>cp .env.example .env          # local trial only
+./scripts/up.sh</code></pre>
+      <p>Open <a href="http://localhost:8080">http://localhost:8080</a>. Postgres, gateway, and Flutter web come up together.</p>
+      <p>Your VM with TLS (Postgres unpublished). Set <code>EFELANT_SEED=0</code> so development users are not created.</p>
+      <pre data-lang="bash"><code>./scripts/new-secrets.sh
+# edit .env: EFELANT_DOMAIN, EFELANT_WS_ORIGINS
+docker compose -f docker-compose.yml -f docker-compose.caddy.yml up -d --build</code></pre>
+      <p>Caddy on 80/443 for <code>EFELANT_DOMAIN</code>. Traefik instead:</p>
+      <pre data-lang="bash"><code>docker compose -f docker-compose.yml -f docker-compose.traefik.yml up -d --build</code></pre>
+
+      <h2 id="swarm">Docker Swarm</h2>
+      <p>Same three services as a stack. Swarm does not build images — pull GHCR, tag to the names Compose uses, then deploy. <code>depends_on</code> conditions and <code>container_name</code> are ignored. Do not run a homemade Postgres primary/replica on Swarm.</p>
+      <pre data-lang="bash"><code>docker pull ghcr.io/tafaust/efelant/postgres:0.1.0
+docker pull ghcr.io/tafaust/efelant/web-gateway:0.1.0
+docker pull ghcr.io/tafaust/efelant/web:0.1.0
+docker tag ghcr.io/tafaust/efelant/postgres:0.1.0 efelant-postgres:0.1.0
+docker tag ghcr.io/tafaust/efelant/web-gateway:0.1.0 efelant-web-gateway:0.1.0
+docker tag ghcr.io/tafaust/efelant/web:0.1.0 efelant-web:0.1.0
+docker stack deploy -c docker-compose.yml efelant</code></pre>
+      <p>The Caddy/Traefik overlays use Compose <code>!reset</code> for ports; that merge is for Compose, not <code>docker stack deploy</code>. For TLS on Swarm, add a published proxy yourself or run Compose on a single node. Prefer a dedicated Postgres (or managed) and keep the stack as gateway + web.</p>
+
+      <h2 id="helm">Kubernetes — Helm</h2>
+      <p>Chart <code>deploy/helm/efelant</code> (also OCI on GHCR). A Job applies SQL. Optional gateway Deployment (<code>gateway.enabled</code> defaults to false). It does not install PostgreSQL.</p>
+      <pre data-lang="bash"><code>kubectl create namespace efelant
+kubectl create secret generic efelant-postgres \
+  --namespace efelant \
+  --from-literal=password="$POSTGRES_PASSWORD"
+
+helm install efelant oci://ghcr.io/tafaust/efelant/charts/efelant --version 0.1.0 \
+  --namespace efelant \
+  --set postgres.host=efelant-postgres \
+  --set postgres.existingSecret=efelant-postgres \
+  --set gateway.enabled=true</code></pre>
+      <p>From a checkout: <code>helm install efelant ./deploy/helm/efelant -n efelant</code>. Point <code>postgres.host</code> at StackGres, CloudNativePG, or any Postgres with <code>pgcrypto</code>, <code>citext</code>, and <code>pg_trgm</code>.</p>
+
+      <h2 id="kustomize">Kubernetes — Kustomize</h2>
+      <p>Manifests in <code>deploy/kustomize</code>. Base is namespace, config, secret, migration Job, gateway, and web. Edit secrets before apply — the checked-in secret is a placeholder.</p>
+      <pre data-lang="bash"><code>kubectl apply -k deploy/kustomize/overlays/dev
+# single Postgres Deployment + gateway + web
+
+kubectl apply -k deploy/kustomize/overlays/prod
+# StackGres component + Traefik, 2 replicas
+
+kubectl apply -k deploy/kustomize/overlays/prod-no-stackgres
+# Traefik + 2 replicas, you bring Postgres</code></pre>
+      <p><code>components/stackgres</code> is a Kustomize component, not an overlay. Dev does not include it.</p>
+
+      <h2 id="roles">Extensions and roles</h2>
+      <p>Required: <code>pgcrypto</code>, <code>citext</code>, <code>pg_trgm</code>. Optional: <code>pg_cron</code>. REST/gRPC need <code>shared_preload_libraries=pg_cron,efelant_rest,efelant_grpc</code> (already in the Efelant Postgres image). See <a href="api.html">REST / gRPC</a>.</p>
+      <p>Do not put PostgREST, FastAPI, or a gRPC microservice in front of Core.</p>
+      <div class="grid">
+        <article class="card"><h3>efelant_owner</h3><p>Owns objects, DEFINER.</p></article>
+        <article class="card"><h3>efelant_migrator</h3><p>Applies SQL.</p></article>
+        <article class="card"><h3>efelant_app</h3><p>Client login, function EXECUTE only.</p></article>
+      </div>
+
+      <h2 id="ghcr">GHCR</h2>
+      <p>Push to <code>main</code> or a <code>v*</code> tag publishes images and the Helm chart. Every image gets these tags:</p>
+      <table>
+        <thead><tr><th>tag</th><th>tracks</th></tr></thead>
+        <tbody>
+          <tr><td><code>0.1.0</code></td><td>this patch — pin this</td></tr>
+          <tr><td><code>0.1</code></td><td>current <code>0.1.x</code></td></tr>
+          <tr><td><code>0</code></td><td>current <code>0.x</code></td></tr>
+          <tr><td><code>latest</code></td><td>current <code>main</code></td></tr>
+        </tbody>
+      </table>
+      <pre data-lang="bash"><code>docker pull ghcr.io/tafaust/efelant/postgres:0.1.0
+docker pull ghcr.io/tafaust/efelant/postgres:0.1
+docker pull ghcr.io/tafaust/efelant/postgres:0
+docker pull ghcr.io/tafaust/efelant/postgres:latest
+
+docker pull ghcr.io/tafaust/efelant/web-gateway:0.1.0   # also :0.1 :0 :latest
+docker pull ghcr.io/tafaust/efelant/web:0.1.0
+docker pull ghcr.io/tafaust/efelant/site:0.1.0</code></pre>
+      <p>Helm chart is the patch only: <code>--version 0.1.0</code>. First packages may be private. Make them public under GitHub → Packages if the repo is public.</p>
+
+      <h2 id="pages">Docs site only</h2>
+      <p>GitHub Pages: <a href="https://efelant.de">efelant.de</a> (<code>site/CNAME</code>). Settings → Pages → GitHub Actions. Rootless nginx: <code>docker compose -f docker-compose.site.yml up --build</code> then <a href="http://localhost:8090">http://localhost:8090</a>.</p>
+    </article>
+
+    <nav class="toc">
+      <h3>On this page</h3>
+      <a href="#pieces">What you run</a>
+      <a href="#docker">Docker</a>
+      <a href="#compose">Compose</a>
+      <a href="#swarm">Swarm</a>
+      <a href="#helm">Helm</a>
+      <a href="#kustomize">Kustomize</a>
+      <a href="#roles">Roles</a>
+      <a href="#ghcr">GHCR</a>
+      <a href="#pages">Docs site</a>
+    </nav>
+  </div>
+
+  <footer class="wrap foot">
+    <span>© 2026 efelant · <a href="../LICENSE.txt">AGPL-3.0</a></span>
+    <span><a href="../">Home</a> · <a href="https://github.com/tafaust/efelant">Source</a></span>
+  </footer>
+  <script src="../js/site.js"></script>
+</body>
+</html>

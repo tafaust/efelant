@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>REST / gRPC — efelant</title>
+  <meta name="description" content="Efelant REST and gRPC specs generated from api.handle_http and api.protobuf." />
+  <link rel="icon" href="../media/07-favicon-dark.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.32.14/swagger-ui.css" />
+  <link rel="stylesheet" href="../css/site.css?v=10" />
+  <style>
+    :root { --ef-font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif; --ef-font-mono: "IBM Plex Mono", ui-monospace, monospace; }
+  </style>
+  <script src="../js/theme.js"></script>
+</head>
+<body data-efelant-theme="primary">
+  <header class="mast">
+    <div class="wrap mast-inner">
+      <a class="brand" href="../">
+        <img src="../media/03-app-icon-dark.png" alt="" width="32" height="32" />
+        <span><span class="e">e</span>felant</span>
+      </a>
+      <nav class="nav" data-nav>
+        <a href="./">Docs</a>
+        <a href="api.html" aria-current="page">API</a>
+        <a class="nav-cta" href="quickstart.html">Get started</a>
+      </nav>
+      <button class="menu" type="button" data-menu aria-label="Open menu">Menu</button>
+    </div>
+  </header>
+
+  <div class="docs-shell api-docs">
+    <aside class="side">
+      <div class="side-group">
+        <p class="side-label">Start</p>
+        <a href="./">Introduction</a>
+        <a href="quickstart.html">Quickstart</a>
+        <a href="use-cases.html">Use cases</a>
+        <a href="status.html">Readiness</a>
+        <a href="license.html">License</a>
+      </div>
+      <div class="side-group">
+        <p class="side-label">Platform</p>
+        <a href="embedding.html">Embedding</a>
+        <a href="api.html" aria-current="page">REST / gRPC</a>
+        <a href="deployment.html">Self-host</a>
+      </div>
+      <div class="side-group">
+        <p class="side-label">Design</p>
+        <a href="sdk.html">SDKs</a>
+        <a href="styles.html">Styles</a>
+      </div>
+    </aside>
+
+    <article class="prose wide">
+      <h1>REST and gRPC</h1>
+      <p class="sub">PostgreSQL extensions. Specs generated from <code>database/init/015_api.sql</code>.</p>
+      <p>Workers parse the protocol and run <code>api.handle_http</code> / <code>api.handle_grpc</code>. Authorization stays in SQL. There is no FastAPI sidecar.</p>
+      <div class="doc-actions">
+        <a href="specs/openapi.json" download>openapi.json</a>
+        <a href="specs/efelant.proto" download>efelant.proto</a>
+      </div>
+
+      <h2 id="ports">Listeners</h2>
+      <div class="grid">
+        <article class="card"><h3>efelant_rest</h3><p><code>:18080</code> · REST · live spec at <code>/v1/openapi.json</code></p></article>
+        <article class="card"><h3>efelant_grpc</h3><p><code>:18081</code> · Connect / gRPC-JSON · <code>POST /efelant.v1.Efelant/{Method}</code></p></article>
+      </div>
+      <p>HTTP/2 + protobuf framing is not implemented. Proto is also at <code>GET /v1/efelant.proto</code>.</p>
+
+      <h2 id="auth">Auth</h2>
+      <pre data-lang="http"><code>Authorization: Bearer &lt;token&gt;</code></pre>
+      <p>A human session token, or an API client token (<code>efl_…</code>, shown once) created by a tenant owner/admin. Scopes: <code>tenants:read</code>, <code>contexts:read</code>, <code>contexts:write</code>, <code>events:read</code>, <code>events:write</code>, <code>clients:write</code>.</p>
+
+      <h2 id="rest">REST</h2>
+      <p>Read-only OpenAPI from <code>api.handle_http</code>. Expand an operation for description, parameters, and status codes.</p>
+      <div id="swagger-ui" class="swagger-host" data-api-rest>Loading spec…</div>
+
+      <h2 id="grpc">gRPC</h2>
+      <p>Connect JSON mapping of <code>efelant.v1.Efelant</code>, from <code>api.protobuf()</code> and <code>api.handle_grpc</code>. <code>POST /efelant.v1.Efelant/{Method}</code> on <code>:18081</code>.</p>
+      <div data-api-grpc>Loading spec…</div>
+
+      <h2 id="proto">protobuf</h2>
+      <pre data-lang="proto"><code data-api-proto></code></pre>
+    </article>
+
+    <nav class="toc">
+      <h3>On this page</h3>
+      <a href="#ports">Listeners</a>
+      <a href="#auth">Auth</a>
+      <a href="#rest">REST</a>
+      <a href="#grpc">gRPC</a>
+      <a href="#proto">protobuf</a>
+    </nav>
+  </div>
+
+  <footer class="wrap foot">
+    <span>© 2026 efelant · <a href="../LICENSE.txt">AGPL-3.0</a></span>
+    <span><a href="../">Home</a> · <a href="https://github.com/tafaust/efelant">Source</a></span>
+  </footer>
+  <script src="../js/site.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.32.14/swagger-ui-bundle.js" crossorigin></script>
+  <script src="../js/api-spec.js?v=8"></script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+# efelant
+
+Efelant is a PostgreSQL-native communication platform.
+Core is SQL. No application server. REST/gRPC are PostgreSQL extensions.
+
+Docs:
+- /docs/ Introduction
+- /docs/quickstart.html
+- /docs/use-cases.html
+- /docs/embedding.html
+- /docs/sdk.html
+- /docs/styles.html
+- /docs/api.html
+- /docs/specs/openapi.json
+- /docs/specs/efelant.proto
+- /docs/deployment.html Self-host (Docker, Compose, Swarm, Helm, Kustomize)
+- /docs/status.html
+- /docs/license.html
+
+Rebuild tokens and SDKs from the repo root:
+./scripts/packages.sh
+
+License: AGPL-3.0-or-later
+https://choosealicense.com/licenses/agpl-3.0/
+/LICENSE.txt
