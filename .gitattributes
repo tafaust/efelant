@@ -1,0 +1,3 @@
+packages/flutter/lib/src/generated/** linguist-generated=true
+site/css/tokens.css linguist-generated=true
+site/js/vendor/** linguist-generated=true
