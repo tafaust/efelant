@@ -282,42 +282,6 @@
     return 8.5 + (depth - 2) * 12;
   }
 
-  function drawTocBranch(link, items, index) {
-    const NS = "http://www.w3.org/2000/svg";
-    const depth = items[index].depth;
-    const prev = items[index - 1];
-    const x = tocBranchX(depth);
-    const svg = document.createElementNS(NS, "svg");
-    svg.setAttribute("class", "toc-branch");
-    svg.setAttribute("aria-hidden", "true");
-    svg.style.width = `${Math.round(x + 8)}px`;
-    function line(x1, y1, x2, y2) {
-      const el = document.createElementNS(NS, "line");
-      el.setAttribute("x1", String(x1));
-      el.setAttribute("y1", String(y1));
-      el.setAttribute("x2", String(x2));
-      el.setAttribute("y2", String(y2));
-      el.setAttribute("stroke-width", "1");
-      svg.append(el);
-    }
-    function elbow(fromX, toX) {
-      const el = document.createElementNS(NS, "path");
-      el.setAttribute("d", `M ${fromX} 0 L ${fromX} 0 ${toX} 12`);
-      el.setAttribute("fill", "none");
-      el.setAttribute("stroke-width", "1");
-      svg.append(el);
-    }
-    if (depth <= 2) {
-      line(8.5, 6, 8.5, "100%");
-    } else if (prev && prev.depth !== depth) {
-      elbow(tocBranchX(prev.depth), x);
-      line(x, 12, x, "100%");
-    } else {
-      line(x, 6, x, "100%");
-    }
-    link.prepend(svg);
-  }
-
   function initToc() {
     const toc = document.querySelector(".toc");
     const article = document.querySelector("article.prose");
@@ -339,9 +303,11 @@
     track.setAttribute("aria-hidden", "true");
     const NS = "http://www.w3.org/2000/svg";
     const trackSvg = document.createElementNS(NS, "svg");
+    const trackRail = document.createElementNS(NS, "path");
+    trackRail.setAttribute("class", "toc-track-rail");
     const trackActive = document.createElementNS(NS, "path");
     trackActive.setAttribute("class", "toc-track-active");
-    trackSvg.append(trackActive);
+    trackSvg.append(trackRail, trackActive);
     const dot = document.createElement("div");
     dot.className = "toc-dot";
     track.append(trackSvg, dot);
@@ -355,7 +321,6 @@
       link.href = `#${item.heading.id}`;
       link.textContent = item.heading.textContent ?? item.heading.id;
       link.dataset.depth = String(item.depth);
-      drawTocBranch(link, items, index);
       list.append(link);
       return link;
     });
@@ -396,7 +361,7 @@
       return current;
     }
 
-    /** @type {{ d: string, positions: [number, number, number][], lengths: [number, number][] } | null} */
+    /** @type {{ d: string, positions: [number, number, number][], lengths: [number, number][], pathLen: number } | null} */
     let layout = null;
     let lastIndex = 0;
     let currentDist = 0;
@@ -449,9 +414,13 @@
         height = Math.max(height, bottom);
         if (i === 0) {
           d += `M${x} ${top} L${x} ${bottom}`;
+          continue;
+        }
+        const [, prevBottom, prevX] = positions[i - 1];
+        if (prevX === x) {
+          d += ` L${x} ${top} L${x} ${bottom}`;
         } else {
-          const [, upperBottom, upperX] = positions[i - 1];
-          d += ` L${upperX} ${upperBottom} ${x} ${top} L${x} ${bottom}`;
+          d += ` L${prevX} ${prevBottom} L${x} ${top} L${x} ${bottom}`;
         }
       }
       const probe = document.createElementNS(NS, "path");
@@ -473,8 +442,11 @@
       trackSvg.setAttribute("viewBox", `0 0 ${width} ${height}`);
       trackSvg.setAttribute("width", String(width));
       trackSvg.setAttribute("height", String(height));
+      trackRail.setAttribute("d", d);
       trackActive.setAttribute("d", d);
-      layout = { d, positions, lengths };
+      const pathLen = Math.max(trackActive.getTotalLength(), 1);
+      trackActive.style.strokeDasharray = `0 ${pathLen}`;
+      layout = { d, positions, lengths, pathLen };
       placeDot(currentDist);
     }
 
@@ -498,9 +470,9 @@
       const last = index === links.length - 1;
       const first = index === 0;
       const distance = last || (goingDown && !first) ? endLen : startLen;
-      const [top, bottom] = layout.positions[index];
-      track.style.setProperty("--track-top", `${top}px`);
-      track.style.setProperty("--track-bottom", `${bottom}px`);
+      const span = Math.max(0, endLen - startLen);
+      trackActive.style.strokeDasharray = `${span} ${layout.pathLen}`;
+      trackActive.style.strokeDashoffset = `${-startLen}`;
       moveDot(distance);
       activeLink.scrollIntoView({ block: "nearest", inline: "nearest" });
     }
