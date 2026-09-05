@@ -9,6 +9,8 @@ Markdown here is the source of truth. `site/docs/` is the HTML twin for the mark
 | [platform.md](platform.md) | what Core owns |
 | [use-cases.md](use-cases.md) | messenger, embed, feeds, status events |
 | [readiness.md](readiness.md) | what is preview vs not yet |
+| [security.md](security.md) | gateway, keys, tenants, E2EE |
+| [changelog.md](changelog.md) | GitHub Releases |
 
 ## Integrate
 

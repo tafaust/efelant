@@ -31,13 +31,15 @@ What exists today:
 
 What does not:
 
-- Tenant admin UI or switcher in `app/` (the landing demo can switch hosts and tenants)
+- Tenant admin UI or switcher in `app/` (the Flutter app can set the host; it cannot switch tenants)
 - Per-tenant usernames (usernames are still global)
 - Invites, SCIM, SSO, audit export (API clients exist; no admin UI)
 - Billing / entitlements
 - A host-app cookbook beyond `docs/embedding.md` and `docs/api.md`
 
 You can use Efelant **inside** a B2B host that already has orgs, if that host maps `org_id → tenant_id` and calls `open_context` / `publish_status`. You cannot treat “Efelant for Teams” as a finished product yet.
+
+Security notes (gateway, keys, tenants, E2EE status): [security.md](security.md).
 
 ## Multitenancy progress
 
@@ -53,7 +55,7 @@ Still needed before a public B2B launch:
 
 1. SQL function reference (generated from comments)
 2. Embedding cookbook with a real host example
-3. Security notes a customer can hand to their CISO (threat model, key story, what Postgres sees)
-4. Changelog / versioning of the function API
+3. A CISO-ready threat model beyond [security.md](security.md)
+4. Versioned function API (see [changelog.md](changelog.md) / GitHub Releases)
 5. Tenant admin + switcher
 6. Observability defaults (the gateway already has `/health`; no metrics contract)

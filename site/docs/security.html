@@ -3,7 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>License — efelant</title>
+  <title>Security — efelant</title>
+  <meta name="description" content="Gateway visibility, keys, tenants, and E2EE status for Efelant." />
   <link rel="icon" type="image/svg+xml" href="../media/favicon-dark.svg" data-favicon />
   <link rel="icon" type="image/png" sizes="32x32" href="../media/favicon-32-dark.png" data-favicon-png />
   <link rel="apple-touch-icon" href="../media/apple-touch-icon.png" />
@@ -40,9 +41,9 @@
         <a href="quickstart.html">Quickstart</a>
         <a href="use-cases.html">Use cases</a>
         <a href="status.html">Readiness</a>
-        <a href="security.html">Security</a>
+        <a href="security.html" aria-current="page">Security</a>
         <a href="changelog.html">Changelog</a>
-        <a href="license.html" aria-current="page">License</a>
+        <a href="license.html">License</a>
       </div>
       <div class="side-group">
         <p class="side-label">Platform</p>
@@ -58,16 +59,41 @@
     </aside>
 
     <article class="prose">
-      <h1>License</h1>
-      <p class="sub">GNU Affero General Public License v3.0 or later.</p>
-      <p>Efelant is free software. SPDX: <code>AGPL-3.0-or-later</code>. Copyright (C) 2026 tafaust.</p>
-      <p>Read the <a href="https://choosealicense.com/licenses/agpl-3.0/">choosealicense summary</a> or the <a href="../LICENSE.txt">full license text</a>.</p>
-      <div class="note">If you run a modified Efelant so people use it over a network, AGPL section 13 requires you to offer them the corresponding source of your version. The footer <b>Source</b> link points at <a href="https://github.com/tafaust/efelant">github.com/tafaust/efelant</a>.</div>
+      <h1>Security</h1>
+      <p class="sub">What the gateway sees, where keys live, how tenants isolate, and how far E2EE has come.</p>
+
+      <h2 id="gateway">Gateway</h2>
+      <p>Browsers cannot open a raw PostgreSQL socket. <code>database/web-gateway</code> is a protocol adapter: one asyncpg session per WebSocket so session GUCs and <code>LISTEN</code> still work. It has <strong>no application logic</strong>. It does not decrypt message bodies.</p>
+      <p>Anyone who can connect as <code>efelant_app</code> can <code>LISTEN efelant_events</code>. Notify payloads are metadata (<code>type</code>, ids). Message bodies, tokens, and passwords do not go through <code>NOTIFY</code>.</p>
+      <p>The Flutter binary contains the <code>efelant_app</code> password. Treat that as a public connection credential. Real identity is an application session token. Only the SHA-256 hash of the token is stored.</p>
+
+      <h2 id="e2ee">Keys and E2EE</h2>
+      <p>This is a first step, not Signal and not a Double Ratchet.</p>
+      <table>
+        <thead><tr><th>piece</th><th>where it lives</th></tr></thead>
+        <tbody>
+          <tr><td>Device X25519 private key</td><td>client secure storage only</td></tr>
+          <tr><td>Device X25519 public key</td><td><code>auth.device_keys</code></td></tr>
+          <tr><td>Conversation AES-256-GCM key</td><td>client memory after unwrap</td></tr>
+          <tr><td>Per-device wrap</td><td><code>chat.conversation_key_wraps</code></td></tr>
+          <tr><td>Message bodies</td><td><code>encrypted_content</code></td></tr>
+        </tbody>
+      </table>
+      <p>PostgreSQL stores ciphertext and wraps. It never sees private keys. A new device must receive a wrap from a device that already has the conversation key. The conversation key is static. Web keys live in browser storage.</p>
+
+      <h2 id="tenants">Tenants</h2>
+      <p><code>platform.tenants</code> + membership + session GUC. Functions and RLS reject cross-tenant reads. Usernames are still global. The Flutter app can set the host. It cannot switch tenants, invite members, or do SSO.</p>
+
+      <h2 id="not">What you should not claim yet</h2>
+      <p>Do not tell a CISO this is a finished cryptosystem, a multi-tenant SaaS, or a hosted product. Self-host under AGPL. There is no cloud signup. See <a href="status.html">readiness</a>.</p>
     </article>
 
     <nav class="toc">
       <h3>On this page</h3>
-      <a href="../LICENSE.txt">Full text</a>
+      <a href="#gateway">Gateway</a>
+      <a href="#e2ee">E2EE</a>
+      <a href="#tenants">Tenants</a>
+      <a href="#not">Not yet</a>
     </nav>
   </div>
 

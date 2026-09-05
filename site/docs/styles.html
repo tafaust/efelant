@@ -5,7 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Styles — efelant</title>
   <meta name="description" content="Efelant design tokens, themes, and component chrome catalog." />
-  <link rel="icon" href="../media/07-favicon-dark.png" />
+  <link rel="icon" type="image/svg+xml" href="../media/favicon-dark.svg" data-favicon />
+  <link rel="icon" type="image/png" sizes="32x32" href="../media/favicon-32-dark.png" data-favicon-png />
+  <link rel="apple-touch-icon" href="../media/apple-touch-icon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -19,15 +21,15 @@
   <header class="mast">
     <div class="wrap mast-inner">
       <a class="brand" href="../">
-        <img src="../media/03-app-icon-dark.png" alt="" width="32" height="32" />
+        <img src="../media/icon-dark.svg" alt="efelant" width="32" height="32" data-brand-icon />
         <span><span class="e">e</span>felant</span>
       </a>
-      <nav class="nav" data-nav>
+      <nav class="nav" id="site-nav" data-nav>
         <a href="./">Docs</a>
         <a href="api.html">API</a>
         <a class="nav-cta" href="quickstart.html">Get started</a>
       </nav>
-      <button class="menu" type="button" data-menu aria-label="Open menu">Menu</button>
+      <button class="menu" type="button" data-menu aria-label="Open menu" aria-expanded="false" aria-controls="site-nav">Menu</button>
     </div>
   </header>
 
@@ -39,6 +41,8 @@
         <a href="quickstart.html">Quickstart</a>
         <a href="use-cases.html">Use cases</a>
         <a href="status.html">Readiness</a>
+        <a href="security.html">Security</a>
+        <a href="changelog.html">Changelog</a>
         <a href="license.html">License</a>
       </div>
       <div class="side-group">
@@ -170,8 +174,8 @@
   </div>
 
   <footer class="wrap foot">
-    <span>© 2026 efelant · <a href="../LICENSE.txt">AGPL-3.0</a></span>
-    <span><a href="../">Home</a> · <a href="https://github.com/tafaust/efelant">Source</a></span>
+    <span>© 2026 efelant · <a href="../LICENSE.txt">AGPL-3.0</a> · The communication layer for PostgreSQL</span>
+    <span><a href="../">Home</a> · <a href="changelog.html">Changelog</a> · <a href="https://github.com/tafaust/efelant/issues">Issues</a> · <a href="https://github.com/tafaust/efelant">Source</a></span>
   </footer>
   <script src="../js/site.js"></script>
 </body>
