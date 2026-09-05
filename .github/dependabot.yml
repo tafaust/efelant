@@ -89,3 +89,9 @@ updates:
     schedule:
       interval: weekly
       day: monday
+
+  - package-ecosystem: gradle
+    directory: /app/android
+    schedule:
+      interval: weekly
+      day: monday
