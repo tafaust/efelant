@@ -1,0 +1,13 @@
+.git
+**/.venv
+**/.dart_tool
+**/build
+app/ios
+app/android
+app/macos
+app/linux
+app/windows
+app/test
+database/tests
+**/*.md
+**/.DS_Store

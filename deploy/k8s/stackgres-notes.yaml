@@ -1,0 +1,20 @@
+# Reference only. Apply a real StackGresCluster in your cluster.
+# Efelant Core is the SQL inside this PostgreSQL, not a sidecar app.
+#
+# apiVersion: stackgres.io/v1
+# kind: SGCluster
+# metadata:
+#   name: efelant
+# spec:
+#   instances: 2
+#   postgres:
+#     version: "17"
+#   pods:
+#     persistentVolume:
+#       size: 20Gi
+#
+# After the cluster is ready:
+#   kubectl run -it --rm psql --image=postgres:17 -- \
+#     psql "$DATABASE_URI" -f /migrations/013_platform.sql
+#
+# Or: helm upgrade --install efelant deploy/helm/efelant

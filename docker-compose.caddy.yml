@@ -1,0 +1,42 @@
+# Company / public deployment. Requires Compose v2.24+ for !reset.
+#   ./scripts/new-secrets.sh
+#   # edit .env: EFELANT_DOMAIN, EFELANT_WS_ORIGINS
+#   docker compose -f docker-compose.yml -f docker-compose.caddy.yml up -d --build
+#
+# Caddy terminates TLS. Postgres stays on the compose network unless you
+# publish it for native clients.
+
+services:
+  postgres:
+    ports: !reset []
+    environment:
+      EFELANT_SEED: "0"
+
+  web-gateway:
+    ports: !reset []
+    environment:
+      EFELANT_WS_ORIGINS: ${EFELANT_WS_ORIGINS:?set EFELANT_WS_ORIGINS to your https origin}
+      EFELANT_DB_SSLMODE: ${EFELANT_GATEWAY_DB_SSLMODE:-disable}
+
+  web:
+    ports: !reset []
+
+  caddy:
+    image: caddy:2.10-alpine
+    container_name: efelant-caddy
+    restart: unless-stopped
+    depends_on:
+      - web
+    environment:
+      EFELANT_DOMAIN: ${EFELANT_DOMAIN:?set EFELANT_DOMAIN to the public hostname}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:

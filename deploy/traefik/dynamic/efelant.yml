@@ -1,0 +1,34 @@
+http:
+  middlewares:
+    compress:
+      compress: {}
+    websocket-headers:
+      headers:
+        customRequestHeaders:
+          X-Forwarded-Proto: https
+
+  routers:
+    site:
+      rule: Host(`chat.example.com`) && !PathPrefix(`/ws`)
+      entryPoints: [websecure]
+      middlewares: [compress]
+      service: web
+      tls:
+        certResolver: letsencrypt
+    gateway:
+      rule: Host(`chat.example.com`) && PathPrefix(`/ws`)
+      entryPoints: [websecure]
+      middlewares: [websocket-headers]
+      service: gateway
+      tls:
+        certResolver: letsencrypt
+
+  services:
+    web:
+      loadBalancer:
+        servers:
+          - url: http://web:80
+    gateway:
+      loadBalancer:
+        servers:
+          - url: http://web-gateway:5433

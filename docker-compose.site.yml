@@ -1,0 +1,16 @@
+# Marketing / docs site only. No Postgres.
+#   docker compose -f docker-compose.site.yml up --build
+#   open http://localhost:8090
+services:
+  site:
+    build:
+      context: ./site
+      dockerfile: Dockerfile
+    image: efelant-site:0.1.0
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/cache/nginx
+      - /var/run
+    ports:
+      - "8090:8080"

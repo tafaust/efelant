@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: efelant-gateway
+  labels:
+    app.kubernetes.io/name: efelant
+    app.kubernetes.io/component: gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: efelant
+      app.kubernetes.io/component: gateway
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: efelant
+        app.kubernetes.io/component: gateway
+    spec:
+      containers:
+        - name: gateway
+          image: efelant-web-gateway:0.1.0
+          ports:
+            - containerPort: 5433
+              name: ws
+          env:
+            - name: EFELANT_DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: efelant
+                  key: POSTGRES_HOST
+            - name: EFELANT_DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: efelant
+                  key: POSTGRES_PORT
+            - name: EFELANT_DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: efelant
+                  key: POSTGRES_DB
+            - name: EFELANT_DB_USER
+              value: efelant_app
+            - name: EFELANT_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: efelant-postgres
+                  key: app-password
+            - name: EFELANT_WS_PORT
+              value: "5433"
+            - name: EFELANT_WS_ORIGINS
+              valueFrom:
+                configMapKeyRef:
+                  name: efelant
+                  key: EFELANT_WS_ORIGINS
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: ws

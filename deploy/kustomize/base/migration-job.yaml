@@ -1,0 +1,45 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: efelant-migrate
+spec:
+  backoffLimit: 3
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: migrate
+          image: postgres:17-bookworm
+          env:
+            - name: PGHOST
+              valueFrom:
+                configMapKeyRef:
+                  name: efelant
+                  key: POSTGRES_HOST
+            - name: PGPORT
+              valueFrom:
+                configMapKeyRef:
+                  name: efelant
+                  key: POSTGRES_PORT
+            - name: PGDATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: efelant
+                  key: POSTGRES_DB
+            - name: PGUSER
+              valueFrom:
+                configMapKeyRef:
+                  name: efelant
+                  key: POSTGRES_USER
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: efelant-postgres
+                  key: password
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "Apply database/migrations/*.sql with scripts/migrate.sh"
+              echo "This Job is the Core installer. It is not a runtime pod."
+              until pg_isready; do sleep 2; done

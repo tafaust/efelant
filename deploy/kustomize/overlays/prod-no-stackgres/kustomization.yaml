@@ -1,0 +1,31 @@
+# Prod traffic shape (Traefik + 2 replicas) against an external
+# PostgreSQL — CloudNativePG, a managed service, or a cluster you already run.
+# For StackGres HA, use overlays/prod instead.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: efelant
+resources:
+  - ../../base
+components:
+  - ../../components/traefik
+patches:
+  - path: config-patch.yaml
+  - target:
+      kind: Deployment
+      name: efelant-gateway
+    patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 2
+  - target:
+      kind: Deployment
+      name: efelant-web
+    patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 2
+labels:
+  - pairs:
+      environment: prod
+      app.kubernetes.io/part-of: efelant
+    includeSelectors: false

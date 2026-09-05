@@ -1,0 +1,102 @@
+services:
+  postgres:
+    build:
+      context: ./database
+      dockerfile: Dockerfile
+    image: efelant-postgres:0.1.0
+    container_name: efelant-postgres
+    restart: unless-stopped
+    ports:
+      - "${EFELANT_DB_PORT:-5432}:5432"
+      - "${EFELANT_REST_PORT:-18080}:18080"
+      - "${EFELANT_GRPC_PORT:-18081}:18081"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-efelant_dev_postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-efelant}
+      EFELANT_APP_PASSWORD: ${EFELANT_APP_PASSWORD:-efelant_app_dev_password}
+      EFELANT_MIGRATOR_PASSWORD: ${EFELANT_MIGRATOR_PASSWORD:-efelant_migrator_dev_password}
+      EFELANT_SEED: ${EFELANT_SEED:-1}
+    command:
+      - postgres
+      - -c
+      - listen_addresses=*
+      - -c
+      - ssl=on
+      - -c
+      - ssl_cert_file=/var/lib/postgresql/certs/server.crt
+      - -c
+      - ssl_key_file=/var/lib/postgresql/certs/server.key
+      - -c
+      - password_encryption=scram-sha-256
+      - -c
+      - shared_preload_libraries=pg_cron,efelant_rest,efelant_grpc
+      - -c
+      - cron.database_name=efelant
+      - -c
+      - max_connections=200
+      - -c
+      - log_connections=on
+      - -c
+      - log_disconnections=on
+      - -c
+      - log_min_duration_statement=500
+    volumes:
+      - efelant_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d efelant"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  web-gateway:
+    build:
+      context: ./database/web-gateway
+      dockerfile: Dockerfile
+    image: efelant-web-gateway:0.1.0
+    container_name: efelant-web-gateway
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      EFELANT_DB_HOST: postgres
+      EFELANT_DB_PORT: "5432"
+      EFELANT_DB_NAME: ${POSTGRES_DB:-efelant}
+      EFELANT_DB_USER: ${EFELANT_DB_USER:-efelant_app}
+      EFELANT_DB_PASSWORD: ${EFELANT_APP_PASSWORD:-efelant_app_dev_password}
+      EFELANT_DB_SSLMODE: ${EFELANT_GATEWAY_DB_SSLMODE:-disable}
+      EFELANT_WS_PORT: "5433"
+      EFELANT_WS_ORIGINS: ${EFELANT_WS_ORIGINS:-*}
+      EFELANT_WS_MAX_CONNECTIONS: ${EFELANT_WS_MAX_CONNECTIONS:-80}
+    ports:
+      - "${EFELANT_WS_PORT:-5433}:5433"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5433/health')",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  web:
+    build:
+      context: .
+      dockerfile: app/Dockerfile
+      args:
+        FLUTTER_VERSION: ${FLUTTER_VERSION:-3.41.9}
+    image: efelant-web:0.1.0
+    container_name: efelant-web
+    restart: unless-stopped
+    depends_on:
+      web-gateway:
+        condition: service_healthy
+    ports:
+      - "${EFELANT_WEB_PORT:-8080}:80"
+
+volumes:
+  efelant_pgdata:

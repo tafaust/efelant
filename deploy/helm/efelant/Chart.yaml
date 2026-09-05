@@ -1,0 +1,11 @@
+apiVersion: v2
+name: efelant
+description: Efelant Core migrations and optional browser gateway
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+home: https://github.com/tafaust/efelant
+sources:
+  - https://github.com/tafaust/efelant
+annotations:
+  licenses: AGPL-3.0-or-later

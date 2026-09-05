@@ -1,0 +1,18 @@
+# Requires the StackGres operator. Core is the SQL inside this cluster.
+apiVersion: stackgres.io/v1
+kind: SGCluster
+metadata:
+  name: efelant-postgres
+spec:
+  instances: 2
+  postgres:
+    version: "17"
+    extensions:
+      - name: pgcrypto
+      - name: pg_trgm
+  pods:
+    persistentVolume:
+      size: 20Gi
+  postgresServices:
+    primary:
+      type: ClusterIP

@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: efelant
+data:
+  POSTGRES_HOST: efelant-postgres
+  POSTGRES_PORT: "5432"
+  POSTGRES_DB: efelant
+  POSTGRES_USER: postgres
+  EFELANT_WS_ORIGINS: "*"
+  EFELANT_DOMAIN: localhost

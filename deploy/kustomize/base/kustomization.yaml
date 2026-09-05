@@ -1,0 +1,23 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: efelant
+resources:
+  - namespace.yaml
+  - configmap.yaml
+  - secret.yaml
+  - migration-job.yaml
+  - gateway-deploy.yaml
+  - gateway-svc.yaml
+  - web-deploy.yaml
+  - web-svc.yaml
+images:
+  - name: efelant-web-gateway
+    newName: ghcr.io/tafaust/efelant/web-gateway
+    newTag: "0.1.0"
+  - name: efelant-web
+    newName: ghcr.io/tafaust/efelant/web
+    newTag: "0.1.0"
+labels:
+  - pairs:
+      app.kubernetes.io/part-of: efelant
+    includeSelectors: false

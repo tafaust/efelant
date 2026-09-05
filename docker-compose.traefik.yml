@@ -1,0 +1,52 @@
+# Alternative to Caddy. Use instead of docker-compose.caddy.yml:
+#   docker compose -f docker-compose.yml -f docker-compose.traefik.yml up -d
+#
+# Set EFELANT_DOMAIN and EFELANT_WS_ORIGINS. Traefik terminates TLS
+# and reverse-proxies the Flutter web build + /ws gateway.
+
+services:
+  postgres:
+    ports: !reset []
+    environment:
+      EFELANT_SEED: "0"
+
+  web-gateway:
+    ports: !reset []
+    environment:
+      EFELANT_WS_ORIGINS: ${EFELANT_WS_ORIGINS:?set EFELANT_WS_ORIGINS to your https origin}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.efelant-ws.rule=Host(`${EFELANT_DOMAIN}`) && PathPrefix(`/ws`)
+      - traefik.http.routers.efelant-ws.entrypoints=websecure
+      - traefik.http.routers.efelant-ws.tls.certresolver=letsencrypt
+      - traefik.http.services.efelant-ws.loadbalancer.server.port=5433
+
+  web:
+    ports: !reset []
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.efelant-web.rule=Host(`${EFELANT_DOMAIN}`) && !PathPrefix(`/ws`)
+      - traefik.http.routers.efelant-web.entrypoints=websecure
+      - traefik.http.routers.efelant-web.tls.certresolver=letsencrypt
+      - traefik.http.services.efelant-web.loadbalancer.server.port=80
+
+  traefik:
+    image: traefik:v3.4
+    container_name: efelant-traefik
+    restart: unless-stopped
+    depends_on:
+      - web
+      - web-gateway
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./deploy/traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./deploy/traefik/dynamic:/etc/traefik/dynamic:ro
+      - traefik_letsencrypt:/letsencrypt
+    environment:
+      EFELANT_DOMAIN: ${EFELANT_DOMAIN:?set EFELANT_DOMAIN}
+
+volumes:
+  traefik_letsencrypt:

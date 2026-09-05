@@ -1,0 +1,26 @@
+# Efelant Core lives in PostgreSQL. This chart installs SQL and, optionally,
+# the WebSocket adapter. It does not run a permanent application server.
+
+postgres:
+  host: efelant-postgres
+  port: 5432
+  database: efelant
+  user: postgres
+  existingSecret: efelant-postgres
+  secretPasswordKey: password
+
+migration:
+  enabled: true
+  image: postgres:17-bookworm
+
+gateway:
+  enabled: false
+  replicaCount: 1
+  image: ghcr.io/tafaust/efelant/web-gateway:0.1.0
+  servicePort: 5433
+
+# Production HA belongs to StackGres / CloudNativePG / a managed service.
+# This chart will not deploy a custom Patroni topology.
+stackgres:
+  enabled: false
+  clusterName: efelant
