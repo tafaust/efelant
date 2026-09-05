@@ -25,12 +25,12 @@
     });
     const dark = theme !== LIGHT;
     document.querySelectorAll("[data-brand-icon]").forEach((img) => {
-      img.src = `${dirOf(img.getAttribute("src") || "")}${dark ? "icon-dark.svg" : "icon-light.svg"}`;
+      img.src = `${dirOf(img.getAttribute("src") || "")}${dark ? "icon-dark.png" : "icon-light.png"}`;
+    });
+    document.querySelectorAll("[data-brand-wordmark]").forEach((img) => {
+      img.src = `${dirOf(img.getAttribute("src") || "")}${dark ? "wordmark-dark.png" : "wordmark-light.png"}`;
     });
     document.querySelectorAll("link[data-favicon]").forEach((link) => {
-      link.href = `${dirOf(link.getAttribute("href") || "")}${dark ? "favicon-dark.svg" : "favicon-light.svg"}`;
-    });
-    document.querySelectorAll("link[data-favicon-png]").forEach((link) => {
       link.href = `${dirOf(link.getAttribute("href") || "")}${dark ? "favicon-32-dark.png" : "favicon-32-light.png"}`;
     });
   }
