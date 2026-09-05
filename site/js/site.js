@@ -1,9 +1,35 @@
 (function () {
   const menu = document.querySelector("[data-menu]");
   const nav = document.querySelector("[data-nav]");
+  function setMenu(open) {
+    if (!menu || !nav) {
+      return;
+    }
+    nav.classList.toggle("open", open);
+    menu.setAttribute("aria-expanded", String(open));
+    menu.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+  }
   if (menu && nav) {
-    menu.addEventListener("click", () => {
-      nav.classList.toggle("open");
+    menu.addEventListener("click", (event) => {
+      event.stopPropagation();
+      setMenu(!nav.classList.contains("open"));
+    });
+    nav.querySelectorAll("a").forEach((link) => {
+      link.addEventListener("click", () => setMenu(false));
+    });
+    document.addEventListener("click", (event) => {
+      if (!nav.classList.contains("open")) {
+        return;
+      }
+      if (nav.contains(event.target) || menu.contains(event.target)) {
+        return;
+      }
+      setMenu(false);
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        setMenu(false);
+      }
     });
   }
 
