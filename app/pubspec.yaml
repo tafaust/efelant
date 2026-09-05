@@ -1,0 +1,48 @@
+name: efelant
+description: A messenger with no backend. It's just Postgres.
+# SPDX-License-Identifier: AGPL-3.0-or-later
+publish_to: "none"
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.11.5
+
+dependencies:
+  flutter:
+    sdk: flutter
+  efelant_flutter:
+    path: ../packages/flutter
+  cupertino_icons: ^1.0.8
+  postgres: ^3.5.6
+  provider: ^6.1.5
+  flutter_secure_storage: ^9.2.4
+  shared_preferences: ^2.5.3
+  uuid: ^4.5.1
+  file_picker: ^9.2.3
+  intl: ^0.20.2
+  path: ^1.9.1
+  cryptography: ^2.7.0
+  web_socket_channel: ^3.0.3
+  web: ^1.1.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/branding/
+  fonts:
+    - family: EfelantSans
+      fonts:
+        - asset: assets/fonts/Roboto-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Roboto-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Roboto-Bold.ttf
+          weight: 700
+    - family: EfelantEmoji
+      fonts:
+        - asset: assets/fonts/NotoEmoji.ttf
