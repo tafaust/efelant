@@ -1,0 +1,10 @@
+@import "../efelant-shared.css";
+
+ol {
+  list-style: none;
+  margin: 0;
+  padding: var(--ef-space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ef-space-sm);
+}

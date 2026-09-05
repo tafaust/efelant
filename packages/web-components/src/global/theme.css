@@ -1,0 +1,16 @@
+@import "./tokens.css";
+
+:root,
+:host {
+  color: var(--ef-color-text);
+  background: var(--ef-color-bg);
+  font-family: var(--ef-font-sans);
+  font-size: var(--ef-font-size-md);
+  line-height: var(--ef-font-line-body);
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}

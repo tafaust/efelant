@@ -1,0 +1,17 @@
+@import "../efelant-shared.css";
+
+:host {
+  display: inline-flex;
+}
+
+span {
+  min-width: var(--ef-space-lg);
+  padding: 0 var(--ef-space-xs);
+  border-radius: var(--ef-radius-pill);
+  background: var(--ef-color-accent);
+  color: var(--ef-color-accent-contrast);
+  font-size: var(--ef-font-size-xs);
+  font-weight: var(--ef-font-weight-semibold);
+  line-height: var(--ef-space-lg);
+  text-align: center;
+}

@@ -1,0 +1,13 @@
+:host {
+  display: block;
+  color: var(--ef-color-text);
+  background: var(--ef-color-bg);
+  font-family: var(--ef-font-sans);
+  box-sizing: border-box;
+}
+
+:host *,
+:host *::before,
+:host *::after {
+  box-sizing: border-box;
+}

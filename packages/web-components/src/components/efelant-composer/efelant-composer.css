@@ -1,0 +1,32 @@
+@import "../efelant-shared.css";
+
+form {
+  display: flex;
+  gap: var(--ef-space-xs);
+  align-items: center;
+}
+
+input {
+  flex: 1;
+  min-height: 48px;
+  border: var(--ef-stroke-hair) solid var(--ef-color-border);
+  border-radius: var(--ef-radius-md);
+  background: var(--ef-color-bg-raised);
+  color: var(--ef-color-text);
+  padding: 0 var(--ef-space-md);
+}
+
+button {
+  min-height: 48px;
+  padding: 0 var(--ef-space-lg);
+  border: 0;
+  border-radius: var(--ef-radius-md);
+  background: var(--ef-color-accent);
+  color: var(--ef-color-accent-contrast);
+  font-weight: var(--ef-font-weight-semibold);
+}
+
+button:disabled,
+input:disabled {
+  opacity: 0.45;
+}

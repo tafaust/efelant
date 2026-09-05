@@ -1,0 +1,14 @@
+@import "../efelant-shared.css";
+
+section {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  gap: var(--ef-space-sm);
+  padding: var(--ef-space-md);
+}
+
+[part="timeline"] {
+  flex: 1;
+  min-height: 0;
+}

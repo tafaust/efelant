@@ -1,0 +1,8 @@
+@import "../efelant-shared.css";
+
+nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ef-space-2xs);
+  padding: var(--ef-space-sm);
+}

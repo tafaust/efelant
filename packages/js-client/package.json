@@ -1,0 +1,27 @@
+{
+  "name": "@efelant/client-js",
+  "version": "0.1.0",
+  "description": "Bundled JavaScript client for Efelant Core (CJS, ESM, browser global)",
+  "license": "AGPL-3.0-or-later",
+  "type": "module",
+  "main": "./dist/efelant.cjs.js",
+  "module": "./dist/efelant.esm.js",
+  "unpkg": "./dist/efelant.global.js",
+  "exports": {
+    ".": {
+      "import": "./dist/efelant.esm.js",
+      "require": "./dist/efelant.cjs.js"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "node --test"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.9"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

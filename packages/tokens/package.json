@@ -1,0 +1,21 @@
+{
+  "name": "@efelant/tokens",
+  "version": "0.1.0",
+  "description": "Efelant design tokens (Style Dictionary)",
+  "license": "AGPL-3.0-or-later",
+  "type": "module",
+  "main": "./dist/js/tokens.js",
+  "exports": {
+    ".": "./dist/js/tokens.js",
+    "./css": "./dist/css/tokens.css",
+    "./primary.css": "./dist/css/primary.css",
+    "./secondary.css": "./dist/css/secondary.css"
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "devDependencies": {
+    "style-dictionary": "^4.4.0"
+  }
+}

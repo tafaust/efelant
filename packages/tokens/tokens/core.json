@@ -1,0 +1,46 @@
+{
+  "space": {
+    "2xs": { "value": "4", "type": "dimension" },
+    "xs": { "value": "8", "type": "dimension" },
+    "sm": { "value": "12", "type": "dimension" },
+    "md": { "value": "16", "type": "dimension" },
+    "lg": { "value": "24", "type": "dimension" },
+    "xl": { "value": "32", "type": "dimension" },
+    "2xl": { "value": "48", "type": "dimension" },
+    "3xl": { "value": "72", "type": "dimension" }
+  },
+  "radius": {
+    "sm": { "value": "8", "type": "dimension" },
+    "md": { "value": "16", "type": "dimension" },
+    "lg": { "value": "24", "type": "dimension" },
+    "pill": { "value": "999", "type": "dimension" }
+  },
+  "font": {
+    "sans": { "value": "\"EfelantSans\", \"IBM Plex Sans\", ui-sans-serif, system-ui, sans-serif", "type": "fontFamily" },
+    "mono": { "value": "\"IBM Plex Mono\", ui-monospace, monospace", "type": "fontFamily" },
+    "size": {
+      "xs": { "value": "12", "type": "fontSize" },
+      "sm": { "value": "14", "type": "fontSize" },
+      "md": { "value": "16", "type": "fontSize" },
+      "lg": { "value": "20", "type": "fontSize" },
+      "xl": { "value": "28", "type": "fontSize" },
+      "2xl": { "value": "40", "type": "fontSize" },
+      "3xl": { "value": "56", "type": "fontSize" }
+    },
+    "weight": {
+      "regular": { "value": "400", "type": "fontWeight" },
+      "medium": { "value": "500", "type": "fontWeight" },
+      "semibold": { "value": "600", "type": "fontWeight" },
+      "bold": { "value": "700", "type": "fontWeight" }
+    },
+    "line": {
+      "tight": { "value": "1.15", "type": "other" },
+      "snug": { "value": "1.35", "type": "other" },
+      "body": { "value": "1.55", "type": "other" }
+    }
+  },
+  "stroke": {
+    "hair": { "value": "1", "type": "dimension" },
+    "thick": { "value": "2", "type": "dimension" }
+  }
+}

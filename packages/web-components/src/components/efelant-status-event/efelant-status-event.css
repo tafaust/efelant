@@ -1,0 +1,18 @@
+@import "../efelant-shared.css";
+
+article {
+  padding: var(--ef-space-sm) var(--ef-space-md);
+  border-radius: var(--ef-radius-md);
+  background: var(--ef-color-bg-raised);
+  border: var(--ef-stroke-hair) solid var(--ef-color-border);
+}
+
+strong {
+  color: var(--ef-color-accent);
+  font-weight: var(--ef-font-weight-semibold);
+}
+
+p {
+  margin: var(--ef-space-2xs) 0 0;
+  color: var(--ef-color-text-muted);
+}

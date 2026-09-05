@@ -1,0 +1,17 @@
+{
+  "color": {
+    "bg": { "value": "#1B263B", "type": "color" },
+    "bg-raised": { "value": "#243447", "type": "color" },
+    "bg-overlay": { "value": "#2F4156", "type": "color" },
+    "text": { "value": "#F2F3F5", "type": "color" },
+    "text-muted": { "value": "#B8C0CC", "type": "color" },
+    "border": { "value": "#3A4A63", "type": "color" },
+    "accent": { "value": "#5C7CFA", "type": "color" },
+    "accent-soft": { "value": "#748FFC", "type": "color" },
+    "accent-contrast": { "value": "#FFFFFF", "type": "color" },
+    "mine": { "value": "#3B5BDB", "type": "color" },
+    "theirs": { "value": "#2C3A4F", "type": "color" },
+    "danger": { "value": "#E03131", "type": "color" },
+    "ok": { "value": "#37B24D", "type": "color" }
+  }
+}

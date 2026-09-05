@@ -1,0 +1,26 @@
+{
+  "name": "@efelant/components",
+  "version": "0.1.0",
+  "description": "Stencil web components for Efelant",
+  "license": "AGPL-3.0-or-later",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.js",
+  "types": "dist/types/index.d.ts",
+  "collection": "dist/collection/collection-manifest.json",
+  "collection:main": "dist/collection/index.js",
+  "unpkg": "dist/efelant/efelant.esm.js",
+  "files": ["dist/", "loader/"],
+  "scripts": {
+    "build": "stencil build && node scripts/generate-flutter.mjs",
+    "generate:flutter": "node scripts/generate-flutter.mjs",
+    "test": "echo 'no stencil unit tests yet'"
+  },
+  "dependencies": {
+    "@efelant/client": "file:../ts-client",
+    "@efelant/tokens": "file:../tokens"
+  },
+  "devDependencies": {
+    "@stencil/core": "^4.27.0",
+    "typescript": "^5.8.2"
+  }
+}
