@@ -35,7 +35,7 @@ await client.resume(token);
 
 Browsers cannot speak the PostgreSQL wire protocol. Use `createGatewayTransport`. Native and server-side hosts may supply a transport that runs SQL directly.
 
-`createMemoryTransport()` implements the same function names in memory. The landing-page demo switches Memory / Local / a custom self-hosted WebSocket URL, then lists tenants.
+`createMemoryTransport()` implements the same function names in memory. `createMemoryHub()` is one store with many `open()` connections. The landing-page demo is an in-memory Alice and Bob pair. The Flutter app sets the live host in settings.
 
 | method | SQL |
 | ------ | --- |

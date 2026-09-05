@@ -4,7 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Quickstart — efelant</title>
-  <link rel="icon" href="../media/07-favicon-dark.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="../media/favicon-32-dark.png" data-favicon />
+  <link rel="apple-touch-icon" href="../media/apple-touch-icon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -18,15 +19,15 @@
   <header class="mast">
     <div class="wrap mast-inner">
       <a class="brand" href="../">
-        <img src="../media/03-app-icon-dark.png" alt="" width="32" height="32" />
+        <img src="../media/icon-dark.png" alt="efelant" width="32" height="32" data-brand-icon />
         <span><span class="e">e</span>felant</span>
       </a>
-      <nav class="nav" data-nav>
+      <nav class="nav" id="site-nav" data-nav>
         <a href="./">Docs</a>
         <a href="api.html">API</a>
         <a class="nav-cta" href="quickstart.html" aria-current="page">Get started</a>
       </nav>
-      <button class="menu" type="button" data-menu aria-label="Open menu">Menu</button>
+      <button class="menu" type="button" data-menu aria-label="Open menu" aria-expanded="false" aria-controls="site-nav">Menu</button>
     </div>
   </header>
 
@@ -38,6 +39,8 @@
         <a href="quickstart.html" aria-current="page">Quickstart</a>
         <a href="use-cases.html">Use cases</a>
         <a href="status.html">Readiness</a>
+        <a href="security.html">Security</a>
+        <a href="changelog.html">Changelog</a>
         <a href="license.html">License</a>
       </div>
       <div class="side-group">
@@ -57,25 +60,27 @@
       <h1>Quickstart</h1>
       <p class="sub">Install the stack and send a message in about five minutes.</p>
 
-      <h2 id="start">1. Start the stack</h2>
+      <h2 id="run">Run locally</h2>
+      <h3 id="start">Start the stack</h3>
       <pre data-lang="bash"><code>cp .env.example .env
 ./scripts/up.sh</code></pre>
       <p>Open <a href="http://localhost:8080">http://localhost:8080</a>. The browser talks same-origin <code>ws://localhost:8080/ws</code>.</p>
 
-      <h2 id="signin">2. Sign in</h2>
+      <h3 id="signin">Sign in</h3>
       <p>On a fresh volume with <code>EFELANT_SEED=1</code>:</p>
       <pre data-lang="text"><code>alice / password123
 bob   / password123</code></pre>
       <div class="note">Self-host with <code>EFELANT_SEED=0</code> and use create-an-account. Do not ship the development passwords. Full paths: <a href="deployment.html">Self-host</a>.</div>
 
-      <h2 id="embed">3. Embed a conversation</h2>
+      <h2 id="use">First integrations</h2>
+      <h3 id="embed">Embed a conversation</h3>
       <pre data-lang="html"><code>&lt;efelant-conversation
   tenant-id="…"
   context-type="access_request"
   external-id="AR-123"&gt;
 &lt;/efelant-conversation&gt;</code></pre>
 
-      <h2 id="status">4. Publish a status in the same transaction</h2>
+      <h3 id="status">Publish a status in the same transaction</h3>
       <pre data-lang="sql"><code>BEGIN;
 UPDATE access_requests SET status = 'approved' WHERE id = 'AR-123';
 SELECT efelant.publish_status(
@@ -87,26 +92,21 @@ SELECT efelant.publish_status(
 );
 COMMIT;</code></pre>
 
-      <h2 id="http">5. Call from another app</h2>
+      <h3 id="http">Call from another app</h3>
       <pre data-lang="bash"><code>curl -s http://localhost:18080/health
 curl -s http://localhost:18081/efelant.v1.Efelant/Health \
   -H "Content-Type: application/json" -d '{}'</code></pre>
       <p>Issue an API client as a tenant admin, then send <code>Authorization: Bearer efl_…</code>. Details: <a href="api.html">REST / gRPC</a>.</p>
     </article>
 
-    <nav class="toc">
+    <nav class="toc" aria-label="On this page">
       <h3>On this page</h3>
-      <a href="#start">Start the stack</a>
-      <a href="#signin">Sign in</a>
-      <a href="#embed">Embed</a>
-      <a href="#status">Publish status</a>
-      <a href="#http">HTTP</a>
     </nav>
   </div>
 
   <footer class="wrap foot">
-    <span>© 2026 efelant · <a href="../LICENSE.txt">AGPL-3.0</a></span>
-    <span><a href="../">Home</a> · <a href="https://github.com/tafaust/efelant">Source</a></span>
+    <span>© 2026 efelant · <a href="../LICENSE.txt">AGPL-3.0</a> · The communication layer for PostgreSQL</span>
+    <span><a href="../">Home</a> · <a href="changelog.html">Changelog</a> · <a href="https://github.com/tafaust/efelant/issues">Issues</a> · <a href="https://github.com/tafaust/efelant">Source</a></span>
   </footer>
   <script src="../js/site.js"></script>
 </body>

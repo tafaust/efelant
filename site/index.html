@@ -4,8 +4,21 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>efelant — The communication layer for PostgreSQL</title>
-  <meta name="description" content="A PostgreSQL-native messenger and embeddable conversation layer. No application server in Core. REST and gRPC are extensions." />
-  <link rel="icon" href="media/07-favicon-dark.png" />
+  <meta name="description" content="A PostgreSQL-native messenger and embeddable conversation layer. Core is SQL. No application server. Public preview. AGPL-3.0." />
+  <link rel="canonical" href="https://efelant.de/" />
+  <meta property="og:title" content="efelant — The communication layer for PostgreSQL" />
+  <meta property="og:description" content="Messenger, embed, activity feed, and transactional status. Core is SQL. Public preview." />
+  <meta property="og:url" content="https://efelant.de/" />
+  <meta property="og:image" content="https://efelant.de/media/og.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="efelant — The communication layer for PostgreSQL" />
+  <meta name="twitter:description" content="Messenger, embed, activity feed, and transactional status. Core is SQL. Public preview." />
+  <meta name="twitter:image" content="https://efelant.de/media/og.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="media/favicon-32-dark.png" data-favicon />
+  <link rel="apple-touch-icon" href="media/apple-touch-icon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -19,84 +32,88 @@
   <header class="mast">
     <div class="wrap mast-inner">
       <a class="brand" href="./">
-        <img src="media/03-app-icon-dark.png" alt="" width="32" height="32" />
+        <img src="media/icon-dark.png" alt="efelant" width="32" height="32" data-brand-icon />
         <span><span class="e">e</span>felant</span>
       </a>
-      <nav class="nav" data-nav>
-        <a href="#demo">Demo</a>
+      <nav class="nav" id="site-nav" data-nav>
         <a href="#why">Why</a>
-        <a href="#shapes">Shapes</a>
+        <a href="#compare">Comparison</a>
         <a href="docs/">Docs</a>
-        <a href="docs/api.html">API</a>
+        <a href="docs/changelog.html">Changelog</a>
         <a class="nav-cta" href="docs/quickstart.html">Get started</a>
       </nav>
-      <button class="menu" type="button" data-menu aria-label="Open menu">Menu</button>
+      <button class="menu" type="button" data-menu aria-label="Open menu" aria-expanded="false" aria-controls="site-nav">Menu</button>
     </div>
   </header>
 
   <main>
-    <section class="wrap hero">
+    <section class="wrap hero" id="demo" data-demo>
       <div class="hero-grid">
         <div>
-          <p class="pill"><b>Public preview</b> PostgreSQL is the API →</p>
+          <a class="pill" href="docs/"><b>Public preview</b> PostgreSQL is the API</a>
           <h1>The communication layer for PostgreSQL applications.</h1>
           <p class="lede">
-            Standalone messenger. Embedded conversation next to a ticket.
-            Activity feed. Status events that commit with your business write.
-            Core is SQL. There is no Node, Nest, or Kafka in the middle.
+            Chat, a thread on a ticket, an activity feed, and status that commits
+            with your write. Clients call SQL. There is no Node, Nest, or Kafka in Core.
           </p>
           <div class="actions">
             <a class="btn btn-primary" href="docs/quickstart.html">Get started</a>
-            <a class="btn btn-ghost" href="docs/">Read the docs</a>
+            <a class="btn btn-ghost" href="docs/">Docs</a>
+            <a class="btn btn-ghost" href="https://github.com/tafaust/efelant">GitHub</a>
+          </div>
+          <p class="hero-install"><code>cp .env.example .env &amp;&amp; ./scripts/up.sh</code></p>
+          <div class="trust">
+            <a href="https://github.com/tafaust/efelant">GitHub</a>
+            <a href="LICENSE.txt">AGPL-3.0</a>
+            <span>Public preview</span>
           </div>
         </div>
-        <div class="stage" id="demo">
+        <div class="hero-demo">
           <div class="glow" aria-hidden="true"></div>
-          <div class="device" data-demo>
-            <div class="device-bar"><i></i><i></i><i></i></div>
-            <div class="demo-chrome">
-              <div class="demo-switch" data-demo-host role="tablist" aria-label="Demo backend">
-                <button type="button" data-host="memory" aria-selected="true">Memory</button>
-                <button type="button" data-host="local">Local</button>
-                <button type="button" data-host="custom">Custom</button>
-              </div>
-              <label class="demo-tenant" data-demo-tenant-wrap hidden>
-                <span>Tenant</span>
-                <select data-demo-tenant aria-label="Tenant"></select>
-              </label>
-            </div>
-            <form class="demo-custom" data-demo-custom hidden>
-              <input name="host" type="url" autocomplete="off" spellcheck="false" placeholder="wss://chat.example.com/ws" />
-              <input name="user" type="text" autocomplete="username" placeholder="alice" />
-              <input name="password" type="password" autocomplete="current-password" placeholder="password" />
-              <button type="submit">Connect</button>
-            </form>
-            <div class="app">
-              <div class="convos" data-demo-list></div>
+          <div class="demo-stack">
+            <article class="device" data-pane="alice">
+              <div class="device-bar"><i></i><i></i><i></i><span data-pane-name>Alice</span></div>
               <div class="thread">
-                <div class="thread-log" data-demo-thread></div>
-                <form class="composer" data-demo-form>
+                <div class="thread-log" data-pane-thread></div>
+                <div class="typing" data-pane-typing hidden>
+                  <i></i><i></i><i></i>
+                  <span>Bob is typing…</span>
+                </div>
+                <form class="composer" data-pane-form>
                   <input name="body" type="text" autocomplete="off" placeholder="Message as Alice…" />
                   <button type="submit">Send</button>
                 </form>
               </div>
-            </div>
-            <p class="demo-note" data-demo-note>In-memory SDK, this machine, or your self-hosted gateway. Demo login is alice unless you change it.</p>
+            </article>
+            <article class="device" data-pane="bob">
+              <div class="device-bar"><i></i><i></i><i></i><span data-pane-name>Bob</span></div>
+              <div class="thread">
+                <div class="thread-log" data-pane-thread></div>
+                <div class="typing" data-pane-typing hidden>
+                  <i></i><i></i><i></i>
+                  <span>Alice is typing…</span>
+                </div>
+                <form class="composer" data-pane-form>
+                  <input name="body" type="text" autocomplete="off" placeholder="Message as Bob…" />
+                  <button type="submit">Send</button>
+                </form>
+              </div>
+            </article>
           </div>
+          <p class="demo-note" data-demo-note>In-memory SDK. Type in one window; the other shows it. Point the Flutter app at a real host in settings.</p>
         </div>
       </div>
     </section>
 
     <section class="wrap band" style="padding-top: 8px;">
-      <p class="kicker">Readme</p>
+      <p class="kicker">Also</p>
       <div class="codebox" data-tabs>
         <div class="tabs">
           <button type="button" data-tab="compose" aria-selected="true">Compose</button>
           <button type="button" data-tab="sql">SQL</button>
           <button type="button" data-tab="rest">REST</button>
         </div>
-        <pre data-pane="compose" data-lang="bash"><code>cp .env.example .env
-./scripts/up.sh
+        <pre data-pane="compose" data-lang="bash"><code>cp .env.example .env &amp;&amp; ./scripts/up.sh
 # open http://localhost:8080</code></pre>
         <pre data-pane="sql" data-lang="sql" hidden><code>SELECT efelant.publish_status(
   p_tenant_id => :tenant,
@@ -114,8 +131,8 @@
       <p class="kicker">Why it looks like this</p>
       <h2>A strong focus on the database.</h2>
       <div class="bento">
-        <article class="tile span2">
-          <img src="media/09-mark-minimal.png" alt="Efelant mark: elephant head in one line" />
+        <article class="tile span2 tile-mark">
+          <img src="media/03-app-icon-dark.png" alt="efelant" width="320" height="320" />
         </article>
         <article class="tile">
           <div class="tile-body">
@@ -123,11 +140,11 @@
             <p>Clients call stored functions. RLS owns authorization. Sync is <code>conversation_id</code> + <code>last_sequence</code>.</p>
           </div>
         </article>
-        <article class="tile">
-          <img src="media/10-usage-flutter.png" alt="Flutter and efelant marks side by side" />
+        <article class="tile tile-art">
+          <img src="media/tile-flutter.png" alt="Flutter client on Efelant Core" width="640" height="400" />
         </article>
-        <article class="tile">
-          <img src="media/11-usage-web.png" alt="Web and efelant marks side by side" />
+        <article class="tile tile-art">
+          <img src="media/tile-web.png" alt="efelant-conversation web component" width="640" height="400" />
         </article>
         <article class="tile">
           <div class="tile-body">
@@ -138,25 +155,132 @@
       </div>
     </section>
 
+    <section class="wrap band" id="compare">
+      <p class="kicker">Comparison</p>
+      <h2>Your Postgres. No broker in Core.</h2>
+      <div class="compare-wrap">
+        <table class="compare">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Efelant</th>
+              <th><a href="https://redis.io/docs/latest/develop/pubsub/">Redis pub/sub</a></th>
+              <th><a href="https://socket.io/">Socket.IO</a></th>
+              <th><a href="https://getstream.io/">Stream</a> / <a href="https://pusher.com/">Pusher</a> / <a href="https://ably.com/">Ably</a></th>
+              <th><a href="https://supabase.com/docs/guides/realtime">Supabase Realtime</a></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>Your PostgreSQL</th>
+              <td>Yes</td>
+              <td>No</td>
+              <td>No</td>
+              <td>No</td>
+              <td>Theirs, or you operate it</td>
+            </tr>
+            <tr>
+              <th>Authorization</th>
+              <td>RLS + functions</td>
+              <td>You build it</td>
+              <td>You build it</td>
+              <td>Vendor rules</td>
+              <td>RLS</td>
+            </tr>
+            <tr>
+              <th>Transactional status</th>
+              <td><code>publish_status</code> in the same write</td>
+              <td>No</td>
+              <td>No</td>
+              <td>No</td>
+              <td>You compose it</td>
+            </tr>
+            <tr>
+              <th>Broker in Core</th>
+              <td>No</td>
+              <td>Redis</td>
+              <td>Yes</td>
+              <td>Vendor</td>
+              <td>Realtime service</td>
+            </tr>
+            <tr>
+              <th>Catch-up</th>
+              <td><code>conversation_id</code> + <code>last_sequence</code></td>
+              <td>Ephemeral</td>
+              <td>You build it</td>
+              <td>Vendor history</td>
+              <td>CDC / replay</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="compare-note">Fair reading: those tools are good at what they are. Efelant is for teams that already run PostgreSQL and want conversations next to that data.</p>
+    </section>
+
+    <section class="wrap band" id="architecture">
+      <p class="kicker">Sync</p>
+      <h2>LISTEN wakes. SQL catches up.</h2>
+      <figure class="arch">
+        <svg viewBox="0 0 920 160" role="img" aria-labelledby="arch-title">
+          <title id="arch-title">Client calls SQL functions under RLS, appends a sequence, LISTEN wakes peers, catch-up is conversation_id plus last_sequence</title>
+          <rect x="8" y="36" width="150" height="88" rx="12" fill="var(--ef-color-bg-raised)" stroke="var(--ef-color-border)"/>
+          <text x="83" y="76" text-anchor="middle" fill="currentColor" font-size="15" font-weight="600">Client</text>
+          <text x="83" y="98" text-anchor="middle" fill="var(--ef-color-text-muted)" font-size="12">Flutter / JS</text>
+          <path d="M166 80 H214" stroke="var(--ef-color-accent)" stroke-width="2"/>
+          <polygon points="214,76 226,80 214,84" fill="var(--ef-color-accent)"/>
+          <rect x="230" y="36" width="190" height="88" rx="12" fill="var(--ef-color-bg-raised)" stroke="var(--ef-color-border)"/>
+          <text x="325" y="76" text-anchor="middle" fill="currentColor" font-size="15" font-weight="600">SQL + RLS</text>
+          <text x="325" y="98" text-anchor="middle" fill="var(--ef-color-text-muted)" font-size="12">stored functions</text>
+          <path d="M428 80 H476" stroke="var(--ef-color-accent)" stroke-width="2"/>
+          <polygon points="476,76 488,80 476,84" fill="var(--ef-color-accent)"/>
+          <rect x="492" y="36" width="150" height="88" rx="12" fill="var(--ef-color-bg-raised)" stroke="var(--ef-color-border)"/>
+          <text x="567" y="76" text-anchor="middle" fill="currentColor" font-size="15" font-weight="600">sequence</text>
+          <text x="567" y="98" text-anchor="middle" fill="var(--ef-color-text-muted)" font-size="12">durable events</text>
+          <path d="M650 80 H698" stroke="var(--ef-color-accent)" stroke-width="2"/>
+          <polygon points="698,76 710,80 698,84" fill="var(--ef-color-accent)"/>
+          <rect x="714" y="36" width="198" height="88" rx="12" fill="var(--ef-color-bg-raised)" stroke="var(--ef-color-border)"/>
+          <text x="813" y="70" text-anchor="middle" fill="currentColor" font-size="15" font-weight="600">LISTEN wake</text>
+          <text x="813" y="92" text-anchor="middle" fill="var(--ef-color-text-muted)" font-size="12">then catch-up</text>
+          <text x="813" y="110" text-anchor="middle" fill="var(--ef-color-accent)" font-size="11">id + last_sequence</text>
+        </svg>
+      </figure>
+    </section>
+
     <section class="wrap band" id="shapes">
       <p class="kicker">One core</p>
       <h2>Several product shapes.</h2>
-      <div class="features">
-        <article class="feature">
-          <div class="ico">1</div>
-          <h3>Standalone messenger</h3>
-          <p>The Flutter app. Direct and group chat on the built-in <code>standalone</code> tenant.</p>
+      <div class="examples">
+        <article class="example">
+          <div class="example-frame" aria-hidden="true">
+            <header>TICKET T-1842</header>
+            <p class="example-status">approved</p>
+            <div class="bubble theirs">Can you look at AR-123?</div>
+            <div class="bubble mine">In the same transaction as the approve.</div>
+          </div>
+          <h3>Ticket embed</h3>
+          <p><code>open_context</code> on type + external_id. <a href="docs/embedding.html">Embedding</a></p>
         </article>
-        <article class="feature">
-          <div class="ico">2</div>
-          <h3>Embedded conversation</h3>
-          <p><code>&lt;efelant-conversation&gt;</code> or <code>EfelantConversation</code> on a ticket, claim, or order.</p>
-        </article>
-        <article class="feature">
-          <div class="ico">3</div>
+        <article class="example">
+          <div class="example-frame" aria-hidden="true">
+            <header>ACTIVITY</header>
+            <p class="example-line">status.changed · approved</p>
+            <p class="example-line">alice: ship it</p>
+            <p class="example-line">status.changed · closed</p>
+          </div>
           <h3>Activity feed</h3>
-          <p>Timeline without chat chrome. Status and human messages share one sequence.</p>
+          <p>Status and humans share one sequence. <a href="docs/use-cases.html">Use cases</a></p>
         </article>
+        <article class="example">
+          <div class="example-frame" aria-hidden="true">
+            <header>ALICE · BOB</header>
+            <div class="bubble theirs">Can you look at AR-123?</div>
+            <div class="bubble mine">On it.</div>
+          </div>
+          <h3>Standalone DM</h3>
+          <p>The Flutter app on the <code>standalone</code> tenant. <a href="docs/quickstart.html">Quickstart</a></p>
+        </article>
+      </div>
+      <div class="features" style="margin-top: 28px;">
         <article class="feature">
           <div class="ico">4</div>
           <h3>Transactional status</h3>
@@ -170,38 +294,38 @@
         <article class="feature">
           <div class="ico">6</div>
           <h3>B2B tenants</h3>
-          <p>Each org is a <code>platform.tenants</code> row. Cross-tenant reads are rejected. The landing demo can switch. Flutter still cannot.</p>
+          <p>Each org is a <code>platform.tenants</code> row. The Flutter app can set the host. It still cannot switch tenants.</p>
         </article>
       </div>
     </section>
 
     <section class="wrap band pair">
       <div class="frame">
-        <img src="media/06-logo-horizontal-dark.png" alt="efelant wordmark on navy" />
+        <img src="media/wordmark-dark.png" alt="efelant" data-brand-wordmark />
       </div>
       <div>
         <p class="kicker">Honest</p>
         <h2>Local preview is usable. B2B product is not finished.</h2>
-        <p class="lede">Tenancy exists in SQL. The landing demo can switch hosts and tenants. The Flutter app still has no tenant switcher, invites, or SSO. E2EE is a first step, not Signal. Read the <a href="docs/status.html">readiness</a> note before you use it.</p>
+        <p class="lede">Tenancy exists in SQL. The Flutter app can set the host. No tenant switcher, invites, or SSO. E2EE is a first step, not Signal. Self-host under AGPL. Hosted product and paid support are not offered yet — there is no cloud signup. Read <a href="docs/status.html">readiness</a> and <a href="docs/security.html">security</a>.</p>
       </div>
     </section>
 
     <section class="wrap band" id="mention">
       <p class="kicker">Honorable mention</p>
       <a class="mention" href="https://www.youtube.com/watch?v=3JW732GrMdg" rel="noopener noreferrer">
-        <img src="media/fireship-postgres.jpg" alt="" width="480" height="360" />
+        <img src="media/fireship-postgres.jpg" alt="Fireship: I replaced my entire tech stack with Postgres…" width="480" height="360" loading="lazy" />
         <div>
           <p class="mention-by">Fireship</p>
           <h2>I replaced my entire tech stack with Postgres…</h2>
-          <p>The argument we built Efelant on, said out loud. Eleven unorthodox ways to throw the shovel SaaS pile in the incinerator and keep PostgreSQL.</p>
+          <p>The case for keeping work in PostgreSQL. We built Efelant on that argument.</p>
         </div>
       </a>
     </section>
   </main>
 
   <footer class="wrap foot">
-    <span>© 2026 efelant · <a href="LICENSE.txt">AGPL-3.0</a> · Der Messenger. Nur PostgreSQL.</span>
-    <span><a href="docs/">Docs</a> · <a href="docs/deployment.html">Self-host</a> · <a href="https://github.com/tafaust/efelant">Source</a></span>
+    <span>© 2026 efelant · <a href="LICENSE.txt">AGPL-3.0</a> · The communication layer for PostgreSQL</span>
+    <span><a href="docs/">Docs</a> · <a href="docs/changelog.html">Changelog</a> · <a href="docs/security.html">Security</a> · <a href="https://github.com/tafaust/efelant/issues">Issues</a> · <a href="https://github.com/tafaust/efelant">Source</a></span>
   </footer>
   <script src="js/site.js"></script>
   <script type="module" src="js/demo.mjs"></script>

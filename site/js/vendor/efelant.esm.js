@@ -1,4 +1,4 @@
-// ../ts-client/src/errors.ts
+// src/errors.ts
 var EfelantError = class extends Error {
   code;
   constructor(message, code = "EFELANT") {
@@ -30,7 +30,7 @@ function errorFromSql(message, code) {
   return new EfelantError(message, code ?? "EFELANT");
 }
 
-// ../ts-client/src/transport.ts
+// src/transport.ts
 async function sql(transport, text, params = []) {
   try {
     const result = await transport.query(text, params);
@@ -90,7 +90,7 @@ function createGatewayTransport(url) {
   };
 }
 
-// ../ts-client/src/client.ts
+// src/client.ts
 var EfelantClient = class {
   constructor(options) {
     this.options = options;
@@ -208,7 +208,7 @@ function asEvent(row) {
   };
 }
 
-// ../ts-client/src/memory.ts
+// src/memory.ts
 var FN = /(auth|chat|efelant)\.[a-z_]+/i;
 var TENANT = "00000000-0000-4000-8000-000000000001";
 var ALICE = "00000000-0000-4000-8000-000000000002";
@@ -225,11 +225,11 @@ function newId(store) {
   store.next += 1;
   return `00000000-0000-4000-8000-${String(store.next).padStart(12, "0")}`;
 }
-function requireUser(store) {
-  if (!store.session) {
+function requireUser(store, conn) {
+  if (!conn.session) {
     throw new Error("not authenticated");
   }
-  const user = store.users.find((item) => item.id === store.session?.userId);
+  const user = store.users.find((item) => item.id === conn.session?.userId);
   if (!user) {
     throw new Error("not authenticated");
   }
@@ -255,7 +255,6 @@ function seedStore() {
     messages: [],
     events: [],
     sequences: /* @__PURE__ */ new Map(),
-    session: null,
     next: 100
   };
   addMessage(store, CONV_BOB, BOB, "Can you look at AR-123?", iso(0));
@@ -304,7 +303,7 @@ function addEvent(store, conversationId, type, actorId, payload, createdAt) {
 function userById(store, id) {
   return store.users.find((item) => item.id === id);
 }
-function login(store, params) {
+function login(store, conn, params) {
   const username = String(params[0] ?? "").trim().toLowerCase();
   const password = String(params[1] ?? "");
   const deviceId = String(params[2] ?? newId(store));
@@ -313,7 +312,7 @@ function login(store, params) {
     throw new Error("invalid username or password");
   }
   const token = `mem_${user.id}`;
-  store.session = { userId: user.id, token, deviceId };
+  conn.session = { userId: user.id, token, deviceId };
   return {
     rows: [
       {
@@ -328,14 +327,14 @@ function login(store, params) {
     ]
   };
 }
-function resume(store, params) {
+function resume(store, conn, params) {
   const token = String(params[0] ?? "");
   const userId = token.startsWith("mem_") ? token.slice(4) : "";
   const user = store.users.find((item) => item.id === userId);
   if (!user) {
     throw new Error("session not found");
   }
-  store.session = { userId: user.id, token, deviceId: store.session?.deviceId ?? newId(store) };
+  conn.session = { userId: user.id, token, deviceId: conn.session?.deviceId ?? newId(store) };
   return {
     rows: [
       {
@@ -344,7 +343,7 @@ function resume(store, params) {
         display_name: user.displayName,
         session_id: newId(store),
         session_token: token,
-        device_id: store.session.deviceId,
+        device_id: conn.session.deviceId,
         expires_at: iso(86400)
       }
     ]
@@ -355,17 +354,19 @@ function listTenants() {
     rows: [{ id: TENANT, slug: "standalone", name: "standalone", role: "owner" }]
   };
 }
-function getConversations(store) {
-  const me = requireUser(store);
+function getConversations(store, conn) {
+  const me = requireUser(store, conn);
   return {
     rows: store.conversations.filter((conversation) => store.members.get(conversation.id)?.has(me.id)).map((conversation) => {
-      const peer = conversation.peerUserId ? userById(store, conversation.peerUserId) : void 0;
+      const members = [...store.members.get(conversation.id) ?? []];
+      const peerId = conversation.type === "direct" ? members.find((id) => id !== me.id) ?? conversation.peerUserId : conversation.peerUserId;
+      const peer = peerId ? userById(store, peerId) : void 0;
       const last = [...store.messages].reverse().find((message) => message.conversationId === conversation.id);
       return {
         id: conversation.id,
         type: conversation.type,
-        title: conversation.title,
-        peer_user_id: conversation.peerUserId,
+        title: conversation.type === "direct" ? peer?.displayName ?? conversation.title : conversation.title,
+        peer_user_id: peerId,
         peer_username: peer?.username ?? null,
         peer_display_name: peer?.displayName ?? conversation.title,
         peer_online: peer?.online ?? false,
@@ -376,8 +377,8 @@ function getConversations(store) {
     })
   };
 }
-function getMessages(store, params) {
-  const me = requireUser(store);
+function getMessages(store, conn, params) {
+  const me = requireUser(store, conn);
   const conversationId = String(params[0] ?? "");
   if (!store.members.get(conversationId)?.has(me.id)) {
     throw new Error("not a conversation member");
@@ -399,8 +400,8 @@ function getMessages(store, params) {
     })
   };
 }
-function sendMessage(store, params) {
-  const me = requireUser(store);
+function sendMessage(store, conn, params) {
+  const me = requireUser(store, conn);
   const conversationId = String(params[0] ?? "");
   const clientId = String(params[1] ?? newId(store));
   const content = String(params[2] ?? "");
@@ -441,8 +442,8 @@ function sendMessage(store, params) {
     ]
   };
 }
-function openContext(store, params) {
-  requireUser(store);
+function openContext(store, conn, params) {
+  requireUser(store, conn);
   return {
     rows: [
       {
@@ -456,8 +457,8 @@ function openContext(store, params) {
     ]
   };
 }
-function syncEvents(store, params) {
-  const me = requireUser(store);
+function syncEvents(store, conn, params) {
+  const me = requireUser(store, conn);
   const conversationId = String(params[0] ?? "");
   const after = Number(params[1] ?? 0);
   if (!store.members.get(conversationId)?.has(me.id)) {
@@ -476,37 +477,37 @@ function syncEvents(store, params) {
     }))
   };
 }
-function dispatch(store, sqlText, params) {
+function dispatch(store, conn, sqlText, params) {
   const name = sqlText.match(FN)?.[0]?.toLowerCase() ?? "";
   switch (name) {
     case "auth.login":
-      return login(store, params);
+      return login(store, conn, params);
     case "auth.resume_session":
-      return resume(store, params);
+      return resume(store, conn, params);
     case "auth.logout":
-      store.session = null;
+      conn.session = null;
       return { rows: [{ logout: true }] };
     case "auth.list_tenants":
-      requireUser(store);
+      requireUser(store, conn);
       return listTenants();
     case "auth.select_tenant":
-      requireUser(store);
+      requireUser(store, conn);
       return { rows: [{ select_tenant: String(params[0] ?? TENANT) }] };
     case "auth.current_tenant_id":
-      requireUser(store);
+      requireUser(store, conn);
       return { rows: [{ current_tenant_id: TENANT }] };
     case "chat.get_conversations":
-      return getConversations(store);
+      return getConversations(store, conn);
     case "chat.get_messages":
     case "chat.get_messages_after":
-      return getMessages(store, params);
+      return getMessages(store, conn, params);
     case "chat.send_message":
-      return sendMessage(store, params);
+      return sendMessage(store, conn, params);
     case "efelant.open_context":
-      return openContext(store, params);
+      return openContext(store, conn, params);
     case "efelant.sync_events":
     case "efelant.sync_context_events":
-      return syncEvents(store, name === "efelant.sync_context_events" ? [CONV_AR, params[3] ?? 0] : params);
+      return syncEvents(store, conn, name === "efelant.sync_context_events" ? [CONV_AR, params[3] ?? 0] : params);
     default:
       throw new Error(`memory transport: unsupported ${name || sqlText}`);
   }
@@ -520,16 +521,27 @@ var MEMORY_IDS = {
   convCharlie: CONV_CHARLIE,
   convAr: CONV_AR
 };
-function createMemoryTransport() {
-  const store = seedStore();
+function bindMemory(store) {
+  const conn = { session: null };
   return {
     async query(sqlText, params = []) {
-      return dispatch(store, sqlText, params);
+      return dispatch(store, conn, sqlText, params);
+    }
+  };
+}
+function createMemoryTransport() {
+  return bindMemory(seedStore());
+}
+function createMemoryHub() {
+  const store = seedStore();
+  return {
+    open() {
+      return bindMemory(store);
     }
   };
 }
 
-// ../ts-client/src/types.ts
+// src/types.ts
 var EVENT_TYPES = [
   "message.created",
   "message.updated",
@@ -555,6 +567,7 @@ export {
   EfelantForbiddenError,
   MEMORY_IDS,
   createGatewayTransport,
+  createMemoryHub,
   createMemoryTransport,
   errorFromSql,
   sql

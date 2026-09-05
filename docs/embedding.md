@@ -82,7 +82,7 @@ const events = await client.syncEvents({
 
 Browsers cannot speak the PostgreSQL wire protocol. Use the gateway. Native Flutter and other server-side clients may connect to PostgreSQL directly.
 
-`createMemoryTransport()` implements the same SQL function names in memory. The landing-page demo switches Memory, local `createGatewayTransport('ws://127.0.0.1:8080/ws')`, or a custom self-hosted URL. After login it lists tenants from `auth.list_tenants`.
+`createMemoryTransport()` implements the same SQL function names in memory. `createMemoryHub()` shares one store across connections. The landing-page demo is an in-memory Alice and Bob pair. Point the Flutter app at a live gateway from the host field on login or in settings.
 
 ## REST and gRPC
 

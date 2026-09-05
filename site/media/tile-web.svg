@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400">
+  <rect width="640" height="400" fill="#1B263B"/>
+  <rect x="88" y="92" width="464" height="168" rx="16" fill="#152033" stroke="#2C3A55"/>
+  <text x="320" y="168" text-anchor="middle" font-family="IBM Plex Mono, ui-monospace, monospace" font-size="22" fill="#5C7CFA">&lt;efelant-conversation&gt;</text>
+  <text x="320" y="204" text-anchor="middle" font-family="IBM Plex Sans, ui-sans-serif, sans-serif" font-size="16" fill="#C5CBD6">tenant + type + external_id</text>
+  <text x="320" y="320" text-anchor="middle" font-family="IBM Plex Sans, ui-sans-serif, sans-serif" font-size="16" fill="#8B93A7">JS / TS ready components</text>
+</svg>

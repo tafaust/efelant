@@ -4,7 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Readiness — efelant</title>
-  <link rel="icon" href="../media/07-favicon-dark.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="../media/favicon-32-dark.png" data-favicon />
+  <link rel="apple-touch-icon" href="../media/apple-touch-icon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -18,15 +19,15 @@
   <header class="mast">
     <div class="wrap mast-inner">
       <a class="brand" href="../">
-        <img src="../media/03-app-icon-dark.png" alt="" width="32" height="32" />
+        <img src="../media/icon-dark.png" alt="efelant" width="32" height="32" data-brand-icon />
         <span><span class="e">e</span>felant</span>
       </a>
-      <nav class="nav" data-nav>
+      <nav class="nav" id="site-nav" data-nav>
         <a href="./">Docs</a>
         <a href="api.html">API</a>
         <a class="nav-cta" href="quickstart.html">Get started</a>
       </nav>
-      <button class="menu" type="button" data-menu aria-label="Open menu">Menu</button>
+      <button class="menu" type="button" data-menu aria-label="Open menu" aria-expanded="false" aria-controls="site-nav">Menu</button>
     </div>
   </header>
 
@@ -38,6 +39,8 @@
         <a href="quickstart.html">Quickstart</a>
         <a href="use-cases.html">Use cases</a>
         <a href="status.html" aria-current="page">Readiness</a>
+        <a href="security.html">Security</a>
+        <a href="changelog.html">Changelog</a>
         <a href="license.html">License</a>
       </div>
       <div class="side-group">
@@ -58,10 +61,11 @@
       <p class="sub">Honest snapshot before you use it.</p>
       <div class="note"><strong>Local / single-tenant preview: usable.</strong> B2B production is not. Tenancy exists in SQL. The product around it does not.</div>
 
-      <h2 id="b2b">B2B</h2>
-      <p>You can embed Efelant in a host that already has organizations by mapping <code>org_id → tenant_id</code>. The landing demo can pick a host and a tenant. You cannot ship “Efelant for Teams” yet: no Flutter switcher, invites, SSO, or per-tenant usernames.</p>
+      <h2 id="scope">Scope</h2>
+      <h3 id="b2b">B2B</h3>
+      <p>You can embed Efelant in a host that already has organizations by mapping <code>org_id → tenant_id</code>. The Flutter app can set the Efelant host. You cannot ship “Efelant for Teams” yet: no tenant switcher, invites, SSO, or per-tenant usernames. Gateway, keys, and E2EE status: <a href="security.html">security</a>.</p>
 
-      <h2 id="table">What is solid</h2>
+      <h3 id="table">What is solid</h3>
       <div class="grid">
         <article class="card"><h3>Function API + RLS</h3><p>Ready for a guarded company deploy.</p></article>
         <article class="card"><h3>Messenger</h3><p>Trial-ready. Not a finished cryptosystem.</p></article>
@@ -70,16 +74,14 @@
       </div>
     </article>
 
-    <nav class="toc">
+    <nav class="toc" aria-label="On this page">
       <h3>On this page</h3>
-      <a href="#b2b">B2B</a>
-      <a href="#table">What is solid</a>
     </nav>
   </div>
 
   <footer class="wrap foot">
-    <span>© 2026 efelant · <a href="../LICENSE.txt">AGPL-3.0</a></span>
-    <span><a href="../">Home</a> · <a href="https://github.com/tafaust/efelant">Source</a></span>
+    <span>© 2026 efelant · <a href="../LICENSE.txt">AGPL-3.0</a> · The communication layer for PostgreSQL</span>
+    <span><a href="../">Home</a> · <a href="changelog.html">Changelog</a> · <a href="https://github.com/tafaust/efelant/issues">Issues</a> · <a href="https://github.com/tafaust/efelant">Source</a></span>
   </footer>
   <script src="../js/site.js"></script>
 </body>

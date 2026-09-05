@@ -13,7 +13,7 @@ export {
   type QueryResult,
   type SqlValue,
 } from "./transport.js";
-export { createMemoryTransport, MEMORY_IDS } from "./memory.js";
+export { createMemoryHub, createMemoryTransport, MEMORY_IDS } from "./memory.js";
 export {
   EVENT_TYPES,
   type AuthSession,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../state/auth_state.dart';
+import '../widgets/host_editor.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -81,7 +82,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 ],
-                const SizedBox(height: 20),
+                const SizedBox(height: 8),
+                const EfelantHostTile(contentPadding: EdgeInsets.zero),
+                const SizedBox(height: 12),
                 Semantics(
                   identifier: 'login',
                   button: true,

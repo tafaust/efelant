@@ -3,7 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Use cases — efelant</title>
+  <title>Changelog — efelant</title>
+  <meta name="description" content="Efelant release notes live on GitHub Releases." />
   <link rel="icon" type="image/png" sizes="32x32" href="../media/favicon-32-dark.png" data-favicon />
   <link rel="apple-touch-icon" href="../media/apple-touch-icon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -37,10 +38,10 @@
         <p class="side-label">Start</p>
         <a href="./">Introduction</a>
         <a href="quickstart.html">Quickstart</a>
-        <a href="use-cases.html" aria-current="page">Use cases</a>
+        <a href="use-cases.html">Use cases</a>
         <a href="status.html">Readiness</a>
         <a href="security.html">Security</a>
-        <a href="changelog.html">Changelog</a>
+        <a href="changelog.html" aria-current="page">Changelog</a>
         <a href="license.html">License</a>
       </div>
       <div class="side-group">
@@ -57,30 +58,12 @@
     </aside>
 
     <article class="prose">
-      <h1>Use cases</h1>
-      <p class="sub">Same core. Not separate products.</p>
+      <h1>Changelog</h1>
+      <p class="sub">Release notes live on GitHub. This page does not invent versions.</p>
 
-      <h2 id="chat">Chat</h2>
-      <h3 id="standalone">Standalone messenger</h3>
-      <p>Direct and group chat on the <code>standalone</code> tenant. The Flutter app.</p>
-      <h3 id="embedded">Embedded communication</h3>
-      <p>Conversation next to a ticket, claim, meter, or order. Host passes a context.</p>
-      <h3 id="contextual">Contextual discussion</h3>
-      <p>Status, assignment, and human messages on one durable timeline.</p>
-
-      <h2 id="signals">Signals</h2>
-      <h3 id="feed">Activity feed</h3>
-      <p>Render the timeline without chat chrome.</p>
-      <h3 id="status">Transactional status</h3>
-      <p><code>publish_status</code> in the same SQL transaction as the business update.</p>
-
-      <h2 id="workspaces">Workspaces</h2>
-      <h3 id="support">Customer support</h3>
-      <p>Support workspace is a tenant. Each ticket is a context.</p>
-      <h3 id="ops">Operational collaboration</h3>
-      <p>Work orders and meters. Resume from <code>last_sequence</code>.</p>
-      <h3 id="b2b">B2B organization messaging</h3>
-      <p>Each customer org is a tenant. Users may belong to several. UI to switch is not shipped.</p>
+      <h2 id="releases">Releases</h2>
+      <h3 id="github">GitHub Releases</h3>
+      <p>See <a href="https://github.com/tafaust/efelant/releases">GitHub Releases</a>. The public preview is unversioned until the first tagged release. Watch the repo if you need to know when a tag lands.</p>
     </article>
 
     <nav class="toc" aria-label="On this page">
@@ -90,7 +73,7 @@
 
   <footer class="wrap foot">
     <span>© 2026 efelant · <a href="../LICENSE.txt">AGPL-3.0</a> · The communication layer for PostgreSQL</span>
-    <span><a href="../">Home</a> · <a href="changelog.html">Changelog</a> · <a href="https://github.com/tafaust/efelant/issues">Issues</a> · <a href="https://github.com/tafaust/efelant">Source</a></span>
+    <span><a href="../">Home</a> · <a href="https://github.com/tafaust/efelant/releases">Releases</a> · <a href="https://github.com/tafaust/efelant/issues">Issues</a></span>
   </footer>
   <script src="../js/site.js"></script>
 </body>

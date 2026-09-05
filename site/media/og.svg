@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#1B263B"/>
+  <image x="96" y="206" width="120" height="120" href="03-app-icon-dark.png"/>
+  <text x="244" y="276" font-family="IBM Plex Sans, ui-sans-serif, sans-serif" font-size="92" font-weight="700" letter-spacing="-3.2">
+    <tspan fill="#5C7CFA">e</tspan><tspan fill="#F7F4EE">felant</tspan>
+  </text>
+  <text x="244" y="326" font-family="IBM Plex Sans, ui-sans-serif, sans-serif" font-size="28" fill="#C5CBD6">The communication layer for PostgreSQL</text>
+  <text x="96" y="560" font-family="IBM Plex Sans, ui-sans-serif, sans-serif" font-size="22" fill="#8B93A7">efelant.de - AGPL-3.0 - public preview</text>
+</svg>

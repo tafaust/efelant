@@ -42,6 +42,32 @@ void main() {
     );
   });
 
+  test('typed host maps to postgres and websocket', () {
+    expect(parseEfelantHost('localhost').wsUrl, 'ws://localhost:5433');
+    expect(parseEfelantHost('localhost').port, 5432);
+    expect(parseEfelantHost('10.0.2.2').host, '10.0.2.2');
+    expect(parseEfelantHost('10.0.2.2').wsUrl, 'ws://10.0.2.2:5433');
+    expect(parseEfelantHost('chat.example.com').wsUrl, 'wss://chat.example.com/ws');
+    expect(
+      parseEfelantHost('https://chat.example.com').wsUrl,
+      'wss://chat.example.com/ws',
+    );
+    expect(
+      parseEfelantHost('wss://edge.example.com/sql').wsUrl,
+      'wss://edge.example.com/sql',
+    );
+    expect(parseEfelantHost('localhost:8080').wsUrl, 'ws://localhost:8080/ws');
+    expect(parseEfelantHost('localhost:8080').port, 5432);
+    expect(
+      applyHostOverride(EfelantConfig.defaults, '').host,
+      'localhost',
+    );
+    expect(
+      applyHostOverride(EfelantConfig.defaults, 'db.internal:5432').host,
+      'db.internal',
+    );
+  });
+
   test('explicit websocket override wins', () {
     expect(
       websocketUrlFor(

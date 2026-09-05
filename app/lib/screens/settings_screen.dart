@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../state/auth_state.dart';
+import '../widgets/host_editor.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -40,10 +41,11 @@ class SettingsScreen extends StatelessWidget {
             ),
           ),
           const Divider(),
+          const EfelantHostTile(),
           if (kIsWeb)
             ListTile(
               title: const Text('connection'),
-              subtitle: Text('same-origin WebSocket\n${config.wsUrl}'),
+              subtitle: Text(config.wsUrl),
             )
           else ...[
             ListTile(

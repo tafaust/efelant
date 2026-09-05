@@ -3,14 +3,13 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>REST / gRPC — efelant</title>
-  <meta name="description" content="Efelant REST and gRPC specs generated from api.handle_http and api.protobuf." />
+  <title>Security — efelant</title>
+  <meta name="description" content="Gateway visibility, keys, tenants, and E2EE status for Efelant." />
   <link rel="icon" type="image/png" sizes="32x32" href="../media/favicon-32-dark.png" data-favicon />
   <link rel="apple-touch-icon" href="../media/apple-touch-icon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.32.14/swagger-ui.css" />
   <link rel="stylesheet" href="../css/site.css" />
   <style>
     :root { --ef-font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif; --ef-font-mono: "IBM Plex Mono", ui-monospace, monospace; }
@@ -26,7 +25,7 @@
       </a>
       <nav class="nav" id="site-nav" data-nav>
         <a href="./">Docs</a>
-        <a href="api.html" aria-current="page">API</a>
+        <a href="api.html">API</a>
         <a class="nav-cta" href="quickstart.html">Get started</a>
       </nav>
       <button class="menu" type="button" data-menu aria-label="Open menu" aria-expanded="false" aria-controls="site-nav">Menu</button>
@@ -41,14 +40,14 @@
         <a href="quickstart.html">Quickstart</a>
         <a href="use-cases.html">Use cases</a>
         <a href="status.html">Readiness</a>
-        <a href="security.html">Security</a>
+        <a href="security.html" aria-current="page">Security</a>
         <a href="changelog.html">Changelog</a>
         <a href="license.html">License</a>
       </div>
       <div class="side-group">
         <p class="side-label">Platform</p>
         <a href="embedding.html">Embedding</a>
-        <a href="api.html" aria-current="page">REST / gRPC</a>
+        <a href="api.html">REST / gRPC</a>
         <a href="deployment.html">Self-host</a>
       </div>
       <div class="side-group">
@@ -59,37 +58,36 @@
     </aside>
 
     <article class="prose">
-      <h1>REST and gRPC</h1>
-      <p class="sub">PostgreSQL extensions. Specs generated from <code>database/init/015_api.sql</code>.</p>
-      <p>Workers parse the protocol and run <code>api.handle_http</code> / <code>api.handle_grpc</code>. Authorization stays in SQL. There is no FastAPI sidecar.</p>
-      <div class="doc-actions">
-        <a href="specs/openapi.json" download>openapi.json</a>
-        <a href="specs/efelant.proto" download>efelant.proto</a>
-      </div>
+      <h1>Security</h1>
+      <p class="sub">What the gateway sees, where keys live, how tenants isolate, and how far E2EE has come.</p>
 
-      <h2 id="access">Access</h2>
-      <h3 id="ports">Listeners</h3>
-      <div class="grid">
-        <article class="card"><h3>efelant_rest</h3><p><code>:18080</code> · REST · live spec at <code>/v1/openapi.json</code></p></article>
-        <article class="card"><h3>efelant_grpc</h3><p><code>:18081</code> · Connect / gRPC-JSON · <code>POST /efelant.v1.Efelant/{Method}</code></p></article>
-      </div>
-      <p>HTTP/2 + protobuf framing is not implemented. Proto is also at <code>GET /v1/efelant.proto</code>.</p>
+      <h2 id="isolation">Isolation</h2>
+      <h3 id="gateway">Gateway</h3>
+      <p>Browsers cannot open a raw PostgreSQL socket. <code>database/web-gateway</code> is a protocol adapter: one asyncpg session per WebSocket so session GUCs and <code>LISTEN</code> still work. It has <strong>no application logic</strong>. It does not decrypt message bodies.</p>
+      <p>Anyone who can connect as <code>efelant_app</code> can <code>LISTEN efelant_events</code>. Notify payloads are metadata (<code>type</code>, ids). Message bodies, tokens, and passwords do not go through <code>NOTIFY</code>.</p>
+      <p>The Flutter binary contains the <code>efelant_app</code> password. Treat that as a public connection credential. Real identity is an application session token. Only the SHA-256 hash of the token is stored.</p>
 
-      <h3 id="auth">Auth</h3>
-      <pre data-lang="http"><code>Authorization: Bearer &lt;token&gt;</code></pre>
-      <p>A human session token, or an API client token (<code>efl_…</code>, shown once) created by a tenant owner/admin. Scopes: <code>tenants:read</code>, <code>contexts:read</code>, <code>contexts:write</code>, <code>events:read</code>, <code>events:write</code>, <code>clients:write</code>.</p>
+      <h3 id="tenants">Tenants</h3>
+      <p><code>platform.tenants</code> + membership + session GUC. Functions and RLS reject cross-tenant reads. Usernames are still global. The Flutter app can set the host. It cannot switch tenants, invite members, or do SSO.</p>
 
-      <h2 id="specs">Specs</h2>
-      <h3 id="rest">REST</h3>
-      <p>Read-only OpenAPI from <code>api.handle_http</code>. Expand an operation for description, parameters, and status codes.</p>
-      <div id="swagger-ui" class="swagger-host" data-api-rest>Loading spec…</div>
+      <h2 id="crypto">Cryptography</h2>
+      <h3 id="e2ee">Keys and E2EE</h3>
+      <p>This is a first step, not Signal and not a Double Ratchet.</p>
+      <table>
+        <thead><tr><th>piece</th><th>where it lives</th></tr></thead>
+        <tbody>
+          <tr><td>Device X25519 private key</td><td>client secure storage only</td></tr>
+          <tr><td>Device X25519 public key</td><td><code>auth.device_keys</code></td></tr>
+          <tr><td>Conversation AES-256-GCM key</td><td>client memory after unwrap</td></tr>
+          <tr><td>Per-device wrap</td><td><code>chat.conversation_key_wraps</code></td></tr>
+          <tr><td>Message bodies</td><td><code>encrypted_content</code></td></tr>
+        </tbody>
+      </table>
+      <p>PostgreSQL stores ciphertext and wraps. It never sees private keys. A new device must receive a wrap from a device that already has the conversation key. The conversation key is static. Web keys live in browser storage.</p>
 
-      <h3 id="grpc">gRPC</h3>
-      <p>Connect JSON mapping of <code>efelant.v1.Efelant</code>, from <code>api.protobuf()</code> and <code>api.handle_grpc</code>. <code>POST /efelant.v1.Efelant/{Method}</code> on <code>:18081</code>.</p>
-      <div data-api-grpc>Loading spec…</div>
-
-      <h3 id="proto">protobuf</h3>
-      <pre data-lang="proto"><code data-api-proto></code></pre>
+      <h2 id="honesty">Honesty</h2>
+      <h3 id="not">What you should not claim yet</h3>
+      <p>Do not tell a CISO this is a finished cryptosystem, a multi-tenant SaaS, or a hosted product. Self-host under AGPL. There is no cloud signup. See <a href="status.html">readiness</a>.</p>
     </article>
 
     <nav class="toc" aria-label="On this page">
@@ -102,7 +100,5 @@
     <span><a href="../">Home</a> · <a href="changelog.html">Changelog</a> · <a href="https://github.com/tafaust/efelant/issues">Issues</a> · <a href="https://github.com/tafaust/efelant">Source</a></span>
   </footer>
   <script src="../js/site.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.32.14/swagger-ui-bundle.js" crossorigin></script>
-  <script src="../js/api-spec.js?v=8"></script>
 </body>
 </html>

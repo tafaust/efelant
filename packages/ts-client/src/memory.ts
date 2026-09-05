@@ -47,6 +47,16 @@ interface Conversation {
   peerUserId: string | null;
 }
 
+interface Session {
+  userId: string;
+  token: string;
+  deviceId: string;
+}
+
+interface Conn {
+  session: Session | null;
+}
+
 interface Store {
   users: User[];
   conversations: Conversation[];
@@ -54,7 +64,6 @@ interface Store {
   messages: Message[];
   events: EventRow[];
   sequences: Map<string, number>;
-  session: { userId: string; token: string; deviceId: string } | null;
   next: number;
 }
 
@@ -67,11 +76,11 @@ function newId(store: Store): string {
   return `00000000-0000-4000-8000-${String(store.next).padStart(12, "0")}`;
 }
 
-function requireUser(store: Store): User {
-  if (!store.session) {
+function requireUser(store: Store, conn: Conn): User {
+  if (!conn.session) {
     throw new Error("not authenticated");
   }
-  const user = store.users.find((item) => item.id === store.session?.userId);
+  const user = store.users.find((item) => item.id === conn.session?.userId);
   if (!user) {
     throw new Error("not authenticated");
   }
@@ -98,7 +107,6 @@ function seedStore(): Store {
     messages: [],
     events: [],
     sequences: new Map(),
-    session: null,
     next: 100,
   };
 
@@ -159,7 +167,7 @@ function userById(store: Store, id: string): User | undefined {
   return store.users.find((item) => item.id === id);
 }
 
-function login(store: Store, params: SqlValue[]): QueryResult {
+function login(store: Store, conn: Conn, params: SqlValue[]): QueryResult {
   const username = String(params[0] ?? "").trim().toLowerCase();
   const password = String(params[1] ?? "");
   const deviceId = String(params[2] ?? newId(store));
@@ -168,7 +176,7 @@ function login(store: Store, params: SqlValue[]): QueryResult {
     throw new Error("invalid username or password");
   }
   const token = `mem_${user.id}`;
-  store.session = { userId: user.id, token, deviceId };
+  conn.session = { userId: user.id, token, deviceId };
   return {
     rows: [
       {
@@ -184,14 +192,14 @@ function login(store: Store, params: SqlValue[]): QueryResult {
   };
 }
 
-function resume(store: Store, params: SqlValue[]): QueryResult {
+function resume(store: Store, conn: Conn, params: SqlValue[]): QueryResult {
   const token = String(params[0] ?? "");
   const userId = token.startsWith("mem_") ? token.slice(4) : "";
   const user = store.users.find((item) => item.id === userId);
   if (!user) {
     throw new Error("session not found");
   }
-  store.session = { userId: user.id, token, deviceId: store.session?.deviceId ?? newId(store) };
+  conn.session = { userId: user.id, token, deviceId: conn.session?.deviceId ?? newId(store) };
   return {
     rows: [
       {
@@ -200,7 +208,7 @@ function resume(store: Store, params: SqlValue[]): QueryResult {
         display_name: user.displayName,
         session_id: newId(store),
         session_token: token,
-        device_id: store.session.deviceId,
+        device_id: conn.session.deviceId,
         expires_at: iso(86400),
       },
     ],
@@ -213,19 +221,24 @@ function listTenants(): QueryResult {
   };
 }
 
-function getConversations(store: Store): QueryResult {
-  const me = requireUser(store);
+function getConversations(store: Store, conn: Conn): QueryResult {
+  const me = requireUser(store, conn);
   return {
     rows: store.conversations
       .filter((conversation) => store.members.get(conversation.id)?.has(me.id))
       .map((conversation) => {
-        const peer = conversation.peerUserId ? userById(store, conversation.peerUserId) : undefined;
+        const members = [...(store.members.get(conversation.id) ?? [])];
+        const peerId =
+          conversation.type === "direct"
+            ? members.find((id) => id !== me.id) ?? conversation.peerUserId
+            : conversation.peerUserId;
+        const peer = peerId ? userById(store, peerId) : undefined;
         const last = [...store.messages].reverse().find((message) => message.conversationId === conversation.id);
         return {
           id: conversation.id,
           type: conversation.type,
-          title: conversation.title,
-          peer_user_id: conversation.peerUserId,
+          title: conversation.type === "direct" ? peer?.displayName ?? conversation.title : conversation.title,
+          peer_user_id: peerId,
           peer_username: peer?.username ?? null,
           peer_display_name: peer?.displayName ?? conversation.title,
           peer_online: peer?.online ?? false,
@@ -237,8 +250,8 @@ function getConversations(store: Store): QueryResult {
   };
 }
 
-function getMessages(store: Store, params: SqlValue[]): QueryResult {
-  const me = requireUser(store);
+function getMessages(store: Store, conn: Conn, params: SqlValue[]): QueryResult {
+  const me = requireUser(store, conn);
   const conversationId = String(params[0] ?? "");
   if (!store.members.get(conversationId)?.has(me.id)) {
     throw new Error("not a conversation member");
@@ -263,8 +276,8 @@ function getMessages(store: Store, params: SqlValue[]): QueryResult {
   };
 }
 
-function sendMessage(store: Store, params: SqlValue[]): QueryResult {
-  const me = requireUser(store);
+function sendMessage(store: Store, conn: Conn, params: SqlValue[]): QueryResult {
+  const me = requireUser(store, conn);
   const conversationId = String(params[0] ?? "");
   const clientId = String(params[1] ?? newId(store));
   const content = String(params[2] ?? "");
@@ -306,8 +319,8 @@ function sendMessage(store: Store, params: SqlValue[]): QueryResult {
   };
 }
 
-function openContext(store: Store, params: SqlValue[]): QueryResult {
-  requireUser(store);
+function openContext(store: Store, conn: Conn, params: SqlValue[]): QueryResult {
+  requireUser(store, conn);
   return {
     rows: [
       {
@@ -322,8 +335,8 @@ function openContext(store: Store, params: SqlValue[]): QueryResult {
   };
 }
 
-function syncEvents(store: Store, params: SqlValue[]): QueryResult {
-  const me = requireUser(store);
+function syncEvents(store: Store, conn: Conn, params: SqlValue[]): QueryResult {
+  const me = requireUser(store, conn);
   const conversationId = String(params[0] ?? "");
   const after = Number(params[1] ?? 0);
   if (!store.members.get(conversationId)?.has(me.id)) {
@@ -345,37 +358,37 @@ function syncEvents(store: Store, params: SqlValue[]): QueryResult {
   };
 }
 
-function dispatch(store: Store, sqlText: string, params: SqlValue[]): QueryResult {
+function dispatch(store: Store, conn: Conn, sqlText: string, params: SqlValue[]): QueryResult {
   const name = sqlText.match(FN)?.[0]?.toLowerCase() ?? "";
   switch (name) {
     case "auth.login":
-      return login(store, params);
+      return login(store, conn, params);
     case "auth.resume_session":
-      return resume(store, params);
+      return resume(store, conn, params);
     case "auth.logout":
-      store.session = null;
+      conn.session = null;
       return { rows: [{ logout: true }] };
     case "auth.list_tenants":
-      requireUser(store);
+      requireUser(store, conn);
       return listTenants();
     case "auth.select_tenant":
-      requireUser(store);
+      requireUser(store, conn);
       return { rows: [{ select_tenant: String(params[0] ?? TENANT) }] };
     case "auth.current_tenant_id":
-      requireUser(store);
+      requireUser(store, conn);
       return { rows: [{ current_tenant_id: TENANT }] };
     case "chat.get_conversations":
-      return getConversations(store);
+      return getConversations(store, conn);
     case "chat.get_messages":
     case "chat.get_messages_after":
-      return getMessages(store, params);
+      return getMessages(store, conn, params);
     case "chat.send_message":
-      return sendMessage(store, params);
+      return sendMessage(store, conn, params);
     case "efelant.open_context":
-      return openContext(store, params);
+      return openContext(store, conn, params);
     case "efelant.sync_events":
     case "efelant.sync_context_events":
-      return syncEvents(store, name === "efelant.sync_context_events" ? [CONV_AR, params[3] ?? 0] : params);
+      return syncEvents(store, conn, name === "efelant.sync_context_events" ? [CONV_AR, params[3] ?? 0] : params);
     default:
       throw new Error(`memory transport: unsupported ${name || sqlText}`);
   }
@@ -395,11 +408,25 @@ export const MEMORY_IDS = {
  * In-memory stand-in for PostgreSQL. Same function names the live client
  * already calls. For Pages and any host that cannot reach the gateway.
  */
-export function createMemoryTransport(): EfelantTransport {
-  const store = seedStore();
+function bindMemory(store: Store): EfelantTransport {
+  const conn: Conn = { session: null };
   return {
     async query(sqlText, params = []) {
-      return dispatch(store, sqlText, params);
+      return dispatch(store, conn, sqlText, params);
+    },
+  };
+}
+
+export function createMemoryTransport(): EfelantTransport {
+  return bindMemory(seedStore());
+}
+
+/** One in-memory database, many connections. Alice and Bob share messages. */
+export function createMemoryHub(): { open: () => EfelantTransport } {
+  const store = seedStore();
+  return {
+    open() {
+      return bindMemory(store);
     },
   };
 }

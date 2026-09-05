@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400">
+  <rect width="640" height="400" fill="#1B263B"/>
+  <image x="248" y="72" width="144" height="144" href="03-app-icon-dark.png"/>
+  <text x="320" y="292" text-anchor="middle" font-family="IBM Plex Sans, ui-sans-serif, sans-serif" font-size="28" font-weight="600" fill="#F7F4EE">Flutter</text>
+  <text x="320" y="326" text-anchor="middle" font-family="IBM Plex Sans, ui-sans-serif, sans-serif" font-size="16" fill="#8B93A7">native wire protocol / web /ws</text>
+</svg>
