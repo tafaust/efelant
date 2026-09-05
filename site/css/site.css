@@ -599,17 +599,36 @@ code { font-size: 0.92em; }
 }
 .toc h3 { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #7d8796; }
 .toc-list { position: relative; margin: 8px 0 0; }
-.toc-thumb {
+.toc-track {
   position: absolute;
-  left: var(--toc-left, 7.5px);
-  top: var(--toc-top, 0px);
-  height: var(--toc-height, 0px);
-  width: 2px;
-  border-radius: 999px;
-  background: var(--ef-color-accent);
-  transition: top 0.25s ease, height 0.25s ease, left 0.25s ease;
+  inset-inline-start: 0;
+  top: 0;
   pointer-events: none;
   z-index: 1;
+}
+.toc-track svg { display: block; overflow: visible; }
+.toc-track-active {
+  fill: none;
+  stroke: var(--ef-color-accent);
+  stroke-width: 2;
+  stroke-linecap: round;
+  clip-path: polygon(
+    0 var(--track-top, 0px),
+    100% var(--track-top, 0px),
+    100% var(--track-bottom, 0px),
+    0 var(--track-bottom, 0px)
+  );
+  transition: clip-path 0.35s ease;
+}
+.toc-dot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--ef-color-accent);
+  will-change: transform;
 }
 .toc a {
   position: relative;
