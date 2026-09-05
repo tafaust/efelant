@@ -61,10 +61,11 @@
       <p class="sub">Honest snapshot before you use it.</p>
       <div class="note"><strong>Local / single-tenant preview: usable.</strong> B2B production is not. Tenancy exists in SQL. The product around it does not.</div>
 
-      <h2 id="b2b">B2B</h2>
+      <h2 id="scope">Scope</h2>
+      <h3 id="b2b">B2B</h3>
       <p>You can embed Efelant in a host that already has organizations by mapping <code>org_id → tenant_id</code>. The Flutter app can set the Efelant host. You cannot ship “Efelant for Teams” yet: no tenant switcher, invites, SSO, or per-tenant usernames. Gateway, keys, and E2EE status: <a href="security.html">security</a>.</p>
 
-      <h2 id="table">What is solid</h2>
+      <h3 id="table">What is solid</h3>
       <div class="grid">
         <article class="card"><h3>Function API + RLS</h3><p>Ready for a guarded company deploy.</p></article>
         <article class="card"><h3>Messenger</h3><p>Trial-ready. Not a finished cryptosystem.</p></article>
@@ -73,10 +74,8 @@
       </div>
     </article>
 
-    <nav class="toc">
+    <nav class="toc" aria-label="On this page">
       <h3>On this page</h3>
-      <a href="#b2b">B2B</a>
-      <a href="#table">What is solid</a>
     </nav>
   </div>
 

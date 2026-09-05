@@ -59,21 +59,32 @@
     <article class="prose">
       <h1>Use cases</h1>
       <p class="sub">Same core. Not separate products.</p>
-      <div class="grid">
-        <article class="card"><h3>1. Standalone messenger</h3><p>Direct and group chat on the <code>standalone</code> tenant. The Flutter app.</p></article>
-        <article class="card"><h3>2. Embedded communication</h3><p>Conversation next to a ticket, claim, meter, or order. Host passes a context.</p></article>
-        <article class="card"><h3>3. Contextual discussion</h3><p>Status, assignment, and human messages on one durable timeline.</p></article>
-        <article class="card"><h3>4. Activity feed</h3><p>Render the timeline without chat chrome.</p></article>
-        <article class="card"><h3>5. Customer support</h3><p>Support workspace is a tenant. Each ticket is a context.</p></article>
-        <article class="card"><h3>6. Operational collaboration</h3><p>Work orders and meters. Resume from <code>last_sequence</code>.</p></article>
-        <article class="card"><h3>7. Transactional status</h3><p><code>publish_status</code> in the same SQL transaction as the business update.</p></article>
-        <article class="card"><h3>8. B2B organization messaging</h3><p>Each customer org is a tenant. Users may belong to several. UI to switch is not shipped.</p></article>
-      </div>
+
+      <h2 id="chat">Chat</h2>
+      <h3 id="standalone">Standalone messenger</h3>
+      <p>Direct and group chat on the <code>standalone</code> tenant. The Flutter app.</p>
+      <h3 id="embedded">Embedded communication</h3>
+      <p>Conversation next to a ticket, claim, meter, or order. Host passes a context.</p>
+      <h3 id="contextual">Contextual discussion</h3>
+      <p>Status, assignment, and human messages on one durable timeline.</p>
+
+      <h2 id="signals">Signals</h2>
+      <h3 id="feed">Activity feed</h3>
+      <p>Render the timeline without chat chrome.</p>
+      <h3 id="status">Transactional status</h3>
+      <p><code>publish_status</code> in the same SQL transaction as the business update.</p>
+
+      <h2 id="workspaces">Workspaces</h2>
+      <h3 id="support">Customer support</h3>
+      <p>Support workspace is a tenant. Each ticket is a context.</p>
+      <h3 id="ops">Operational collaboration</h3>
+      <p>Work orders and meters. Resume from <code>last_sequence</code>.</p>
+      <h3 id="b2b">B2B organization messaging</h3>
+      <p>Each customer org is a tenant. Users may belong to several. UI to switch is not shipped.</p>
     </article>
 
-    <nav class="toc">
+    <nav class="toc" aria-label="On this page">
       <h3>On this page</h3>
-      <a href="#">Shapes</a>
     </nav>
   </div>
 

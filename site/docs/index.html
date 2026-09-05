@@ -68,7 +68,8 @@
       <p>Efelant Core runs entirely in PostgreSQL. It is a standalone messenger and an embeddable conversation / activity-feed layer. There is no Node, Nest, Express, FastAPI, Redis, or Kafka in Core. REST and gRPC for third-party apps are <a href="api.html">PostgreSQL extensions</a> that call the same SQL functions.</p>
       <p>Clients synchronize with <code>conversation_id</code> + <code>last_sequence</code>. LISTEN/NOTIFY only wakes the client. Message bodies are encrypted on the device. Private keys never leave it.</p>
 
-      <h2 id="features">Features</h2>
+      <h2 id="product">Product</h2>
+      <h3 id="features">Features</h3>
       <p>Same core, several shapes — not separate products.</p>
       <div class="grid">
         <article class="card"><h3>Function API</h3><p>Stored functions + RLS. <code>efelant_app</code> has no table DML.</p></article>
@@ -79,14 +80,12 @@
         <article class="card"><h3>REST / gRPC</h3><p>Background workers in Postgres. Same authorization as SQL.</p></article>
       </div>
 
-      <h2 id="not-yet">What this is not yet</h2>
+      <h3 id="not-yet">What this is not yet</h3>
       <p>Local / single-tenant preview is usable. B2B production is not. The Flutter app can set the host. It has no tenant switcher, invites, or SSO. E2EE is a first step, not a Double Ratchet. See <a href="status.html">readiness</a>.</p>
     </article>
 
     <nav class="toc" aria-label="On this page">
       <h3>On this page</h3>
-      <a href="#features">Features</a>
-      <a href="#not-yet">What this is not yet</a>
     </nav>
   </div>
 

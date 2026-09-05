@@ -272,4 +272,179 @@
 
   colorAll();
   window.efelantHighlight = colorAll;
+
+  function tocDepth(heading) {
+    const level = Number(heading.tagName.slice(1));
+    return Number.isFinite(level) ? level : 2;
+  }
+
+  function tocBranchX(depth) {
+    return 8.5 + (depth - 2) * 12;
+  }
+
+  function drawTocBranch(link, items, index) {
+    const NS = "http://www.w3.org/2000/svg";
+    const depth = items[index].depth;
+    const prev = items[index - 1];
+    const x = tocBranchX(depth);
+    const svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("class", "toc-branch");
+    svg.setAttribute("aria-hidden", "true");
+    svg.style.width = `${Math.round(x + 8)}px`;
+    function line(x1, y1, x2, y2) {
+      const el = document.createElementNS(NS, "line");
+      el.setAttribute("x1", String(x1));
+      el.setAttribute("y1", String(y1));
+      el.setAttribute("x2", String(x2));
+      el.setAttribute("y2", String(y2));
+      el.setAttribute("stroke-width", "1");
+      svg.append(el);
+    }
+    function elbow(fromX, toX) {
+      const el = document.createElementNS(NS, "path");
+      el.setAttribute("d", `M ${fromX} 0 L ${fromX} 0 ${toX} 12`);
+      el.setAttribute("fill", "none");
+      el.setAttribute("stroke-width", "1");
+      svg.append(el);
+    }
+    if (depth <= 2) {
+      line(8.5, 6, 8.5, "100%");
+    } else if (prev && prev.depth !== depth) {
+      elbow(tocBranchX(prev.depth), x);
+      line(x, 12, x, "100%");
+    } else {
+      line(x, 6, x, "100%");
+    }
+    link.prepend(svg);
+  }
+
+  function initToc() {
+    const toc = document.querySelector(".toc");
+    const article = document.querySelector("article.prose");
+    if (!toc || !article) {
+      return;
+    }
+    const headings = [...article.querySelectorAll("h2[id], h3[id]")].filter(
+      (heading) => heading instanceof HTMLElement && !heading.closest(".card")
+    );
+    toc.querySelectorAll("a").forEach((link) => link.remove());
+    if (headings.length === 0) {
+      toc.hidden = true;
+      return;
+    }
+    const list = document.createElement("div");
+    list.className = "toc-list";
+    const thumb = document.createElement("div");
+    thumb.className = "toc-thumb";
+    thumb.setAttribute("aria-hidden", "true");
+    list.append(thumb);
+    const items = headings.map((heading) => ({
+      heading,
+      depth: Math.min(3, Math.max(2, tocDepth(heading))),
+    }));
+    const links = items.map((item, index) => {
+      const link = document.createElement("a");
+      link.href = `#${item.heading.id}`;
+      link.textContent = item.heading.textContent ?? item.heading.id;
+      link.dataset.depth = String(item.depth);
+      drawTocBranch(link, items, index);
+      list.append(link);
+      return link;
+    });
+    toc.append(list);
+
+    function headerOffset() {
+      const mast = document.querySelector(".mast");
+      return (mast?.getBoundingClientRect().height ?? 64) + 16;
+    }
+
+    function scroller() {
+      return document.scrollingElement ?? document.documentElement;
+    }
+
+    function atPageEnd() {
+      const root = scroller();
+      return root.scrollTop + root.clientHeight >= root.scrollHeight - 48;
+    }
+
+    function currentHeading() {
+      if (headings.length === 0) {
+        return null;
+      }
+      const root = scroller();
+      if (atPageEnd() && root.scrollTop > 0) {
+        return headings[headings.length - 1];
+      }
+      if (root.scrollTop <= 0) {
+        return headings[0];
+      }
+      const y = headerOffset();
+      let current = headings[0];
+      for (const heading of headings) {
+        if (heading.getBoundingClientRect().top - y <= 0) {
+          current = heading;
+        }
+      }
+      return current;
+    }
+
+    function paint(activeLink) {
+      if (!(activeLink instanceof HTMLElement)) {
+        return;
+      }
+      for (const link of links) {
+        link.setAttribute("data-active", String(link === activeLink));
+      }
+      const depth = Number(activeLink.dataset.depth || "2");
+      thumb.style.setProperty("--toc-top", `${activeLink.offsetTop}px`);
+      thumb.style.setProperty("--toc-height", `${activeLink.offsetHeight}px`);
+      thumb.style.setProperty("--toc-left", `${tocBranchX(depth) - 1}px`);
+      activeLink.scrollIntoView({ block: "nearest", inline: "nearest" });
+    }
+
+    let holdUntil = 0;
+
+    function sync() {
+      if (Date.now() < holdUntil) {
+        return;
+      }
+      const heading = currentHeading();
+      if (!heading) {
+        return;
+      }
+      paint(links.find((link) => link.hash === `#${heading.id}`) ?? null);
+    }
+
+    let ticking = false;
+    function onScroll() {
+      if (ticking) {
+        return;
+      }
+      ticking = true;
+      requestAnimationFrame(() => {
+        ticking = false;
+        sync();
+      });
+    }
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("scrollend", sync);
+    window.addEventListener("resize", onScroll);
+    const observer = new IntersectionObserver(onScroll, {
+      rootMargin: "-80px 0% -70% 0%",
+      threshold: 1,
+    });
+    for (const heading of headings) {
+      observer.observe(heading);
+    }
+    for (const link of links) {
+      link.addEventListener("click", () => {
+        paint(link);
+        holdUntil = Date.now() + 500;
+      });
+    }
+    sync();
+  }
+
+  initToc();
 })();

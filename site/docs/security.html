@@ -61,12 +61,17 @@
       <h1>Security</h1>
       <p class="sub">What the gateway sees, where keys live, how tenants isolate, and how far E2EE has come.</p>
 
-      <h2 id="gateway">Gateway</h2>
+      <h2 id="isolation">Isolation</h2>
+      <h3 id="gateway">Gateway</h3>
       <p>Browsers cannot open a raw PostgreSQL socket. <code>database/web-gateway</code> is a protocol adapter: one asyncpg session per WebSocket so session GUCs and <code>LISTEN</code> still work. It has <strong>no application logic</strong>. It does not decrypt message bodies.</p>
       <p>Anyone who can connect as <code>efelant_app</code> can <code>LISTEN efelant_events</code>. Notify payloads are metadata (<code>type</code>, ids). Message bodies, tokens, and passwords do not go through <code>NOTIFY</code>.</p>
       <p>The Flutter binary contains the <code>efelant_app</code> password. Treat that as a public connection credential. Real identity is an application session token. Only the SHA-256 hash of the token is stored.</p>
 
-      <h2 id="e2ee">Keys and E2EE</h2>
+      <h3 id="tenants">Tenants</h3>
+      <p><code>platform.tenants</code> + membership + session GUC. Functions and RLS reject cross-tenant reads. Usernames are still global. The Flutter app can set the host. It cannot switch tenants, invite members, or do SSO.</p>
+
+      <h2 id="crypto">Cryptography</h2>
+      <h3 id="e2ee">Keys and E2EE</h3>
       <p>This is a first step, not Signal and not a Double Ratchet.</p>
       <table>
         <thead><tr><th>piece</th><th>where it lives</th></tr></thead>
@@ -80,19 +85,13 @@
       </table>
       <p>PostgreSQL stores ciphertext and wraps. It never sees private keys. A new device must receive a wrap from a device that already has the conversation key. The conversation key is static. Web keys live in browser storage.</p>
 
-      <h2 id="tenants">Tenants</h2>
-      <p><code>platform.tenants</code> + membership + session GUC. Functions and RLS reject cross-tenant reads. Usernames are still global. The Flutter app can set the host. It cannot switch tenants, invite members, or do SSO.</p>
-
-      <h2 id="not">What you should not claim yet</h2>
+      <h2 id="honesty">Honesty</h2>
+      <h3 id="not">What you should not claim yet</h3>
       <p>Do not tell a CISO this is a finished cryptosystem, a multi-tenant SaaS, or a hosted product. Self-host under AGPL. There is no cloud signup. See <a href="status.html">readiness</a>.</p>
     </article>
 
-    <nav class="toc">
+    <nav class="toc" aria-label="On this page">
       <h3>On this page</h3>
-      <a href="#gateway">Gateway</a>
-      <a href="#e2ee">E2EE</a>
-      <a href="#tenants">Tenants</a>
-      <a href="#not">Not yet</a>
     </nav>
   </div>
 

@@ -33,7 +33,7 @@
     </div>
   </header>
 
-  <div class="docs-shell api-docs">
+  <div class="docs-shell">
     <aside class="side">
       <div class="side-group">
         <p class="side-label">Start</p>
@@ -58,7 +58,7 @@
       </div>
     </aside>
 
-    <article class="prose wide">
+    <article class="prose">
       <h1>REST and gRPC</h1>
       <p class="sub">PostgreSQL extensions. Specs generated from <code>database/init/015_api.sql</code>.</p>
       <p>Workers parse the protocol and run <code>api.handle_http</code> / <code>api.handle_grpc</code>. Authorization stays in SQL. There is no FastAPI sidecar.</p>
@@ -67,36 +67,33 @@
         <a href="specs/efelant.proto" download>efelant.proto</a>
       </div>
 
-      <h2 id="ports">Listeners</h2>
+      <h2 id="access">Access</h2>
+      <h3 id="ports">Listeners</h3>
       <div class="grid">
         <article class="card"><h3>efelant_rest</h3><p><code>:18080</code> · REST · live spec at <code>/v1/openapi.json</code></p></article>
         <article class="card"><h3>efelant_grpc</h3><p><code>:18081</code> · Connect / gRPC-JSON · <code>POST /efelant.v1.Efelant/{Method}</code></p></article>
       </div>
       <p>HTTP/2 + protobuf framing is not implemented. Proto is also at <code>GET /v1/efelant.proto</code>.</p>
 
-      <h2 id="auth">Auth</h2>
+      <h3 id="auth">Auth</h3>
       <pre data-lang="http"><code>Authorization: Bearer &lt;token&gt;</code></pre>
       <p>A human session token, or an API client token (<code>efl_…</code>, shown once) created by a tenant owner/admin. Scopes: <code>tenants:read</code>, <code>contexts:read</code>, <code>contexts:write</code>, <code>events:read</code>, <code>events:write</code>, <code>clients:write</code>.</p>
 
-      <h2 id="rest">REST</h2>
+      <h2 id="specs">Specs</h2>
+      <h3 id="rest">REST</h3>
       <p>Read-only OpenAPI from <code>api.handle_http</code>. Expand an operation for description, parameters, and status codes.</p>
       <div id="swagger-ui" class="swagger-host" data-api-rest>Loading spec…</div>
 
-      <h2 id="grpc">gRPC</h2>
+      <h3 id="grpc">gRPC</h3>
       <p>Connect JSON mapping of <code>efelant.v1.Efelant</code>, from <code>api.protobuf()</code> and <code>api.handle_grpc</code>. <code>POST /efelant.v1.Efelant/{Method}</code> on <code>:18081</code>.</p>
       <div data-api-grpc>Loading spec…</div>
 
-      <h2 id="proto">protobuf</h2>
+      <h3 id="proto">protobuf</h3>
       <pre data-lang="proto"><code data-api-proto></code></pre>
     </article>
 
-    <nav class="toc">
+    <nav class="toc" aria-label="On this page">
       <h3>On this page</h3>
-      <a href="#ports">Listeners</a>
-      <a href="#auth">Auth</a>
-      <a href="#rest">REST</a>
-      <a href="#grpc">gRPC</a>
-      <a href="#proto">protobuf</a>
     </nav>
   </div>
 

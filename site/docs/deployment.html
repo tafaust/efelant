@@ -62,7 +62,8 @@
       <p class="sub">Run Efelant on hardware or a VM you control.</p>
       <p>Core is PostgreSQL. The Flutter web client and WebSocket gateway are optional adapters for browsers. There is no application server to operate. Do not invent custom PostgreSQL HA — use StackGres, CloudNativePG, Patroni, or a managed service.</p>
 
-      <h2 id="pieces">What you run</h2>
+      <h2 id="overview">Overview</h2>
+      <h3 id="pieces">What you run</h3>
       <div class="grid">
         <article class="card"><h3>postgres</h3><p>SQL, REST <code>:18080</code>, gRPC-JSON <code>:18081</code>. Always.</p></article>
         <article class="card"><h3>web-gateway</h3><p>Browser WebSocket adapter. Skip if clients use the Postgres wire.</p></article>
@@ -72,7 +73,8 @@
       <p>Images live at <code>ghcr.io/tafaust/efelant/&lt;name&gt;</code>. Tags: <code>0</code>, <code>0.1</code>, <code>0.1.0</code>, <code>latest</code>. Commands below pin <code>0.1.0</code>. See <a href="#ghcr">GHCR</a>.</p>
       <p>Native clients talk PostgreSQL directly (<code>efelant_app</code>, function EXECUTE only). REST and gRPC-JSON are background workers inside Postgres.</p>
 
-      <h2 id="docker">Docker</h2>
+      <h2 id="containers">Containers</h2>
+      <h3 id="docker">Docker</h3>
       <p>Single machine, no Compose file. Generate passwords with <code>./scripts/new-secrets.sh</code>. The image entrypoint mints a self-signed cert; pass the same <code>-c</code> flags Compose uses so REST/gRPC load. Init SQL runs on the first empty volume. Later: <code>./scripts/migrate.sh</code>. Do not publish <code>5432</code> on a public NIC.</p>
       <pre data-lang="bash"><code>docker network create efelant
 docker volume create efelant_pgdata
@@ -115,7 +117,7 @@ docker run -d --name efelant-web --network efelant \
   -p 8080:80 \
   ghcr.io/tafaust/efelant/web:0.1.0</code></pre>
 
-      <h2 id="compose">Docker Compose</h2>
+      <h3 id="compose">Docker Compose</h3>
       <p>Fastest path on a VM. Local trial from the repository root:</p>
       <pre data-lang="bash"><code>cp .env.example .env          # local trial only
 ./scripts/up.sh</code></pre>
@@ -127,7 +129,7 @@ docker compose -f docker-compose.yml -f docker-compose.caddy.yml up -d --build</
       <p>Caddy on 80/443 for <code>EFELANT_DOMAIN</code>. Traefik instead:</p>
       <pre data-lang="bash"><code>docker compose -f docker-compose.yml -f docker-compose.traefik.yml up -d --build</code></pre>
 
-      <h2 id="swarm">Docker Swarm</h2>
+      <h3 id="swarm">Docker Swarm</h3>
       <p>Same three services as a stack. Swarm does not build images — pull GHCR, tag to the names Compose uses, then deploy. <code>depends_on</code> conditions and <code>container_name</code> are ignored. Do not run a homemade Postgres primary/replica on Swarm.</p>
       <pre data-lang="bash"><code>docker pull ghcr.io/tafaust/efelant/postgres:0.1.0
 docker pull ghcr.io/tafaust/efelant/web-gateway:0.1.0
@@ -138,7 +140,8 @@ docker tag ghcr.io/tafaust/efelant/web:0.1.0 efelant-web:0.1.0
 docker stack deploy -c docker-compose.yml efelant</code></pre>
       <p>The Caddy/Traefik overlays use Compose <code>!reset</code> for ports; that merge is for Compose, not <code>docker stack deploy</code>. For TLS on Swarm, add a published proxy yourself or run Compose on a single node. Prefer a dedicated Postgres (or managed) and keep the stack as gateway + web.</p>
 
-      <h2 id="helm">Kubernetes — Helm</h2>
+      <h2 id="kubernetes">Kubernetes</h2>
+      <h3 id="helm">Helm</h3>
       <p>Chart <code>deploy/helm/efelant</code> (also OCI on GHCR). A Job applies SQL. Optional gateway Deployment (<code>gateway.enabled</code> defaults to false). It does not install PostgreSQL.</p>
       <pre data-lang="bash"><code>kubectl create namespace efelant
 kubectl create secret generic efelant-postgres \
@@ -152,7 +155,7 @@ helm install efelant oci://ghcr.io/tafaust/efelant/charts/efelant --version 0.1.
   --set gateway.enabled=true</code></pre>
       <p>From a checkout: <code>helm install efelant ./deploy/helm/efelant -n efelant</code>. Point <code>postgres.host</code> at StackGres, CloudNativePG, or any Postgres with <code>pgcrypto</code>, <code>citext</code>, and <code>pg_trgm</code>.</p>
 
-      <h2 id="kustomize">Kubernetes — Kustomize</h2>
+      <h3 id="kustomize">Kustomize</h3>
       <p>Manifests in <code>deploy/kustomize</code>. Base is namespace, config, secret, migration Job, gateway, and web. Edit secrets before apply — the checked-in secret is a placeholder.</p>
       <pre data-lang="bash"><code>kubectl apply -k deploy/kustomize/overlays/dev
 # single Postgres Deployment + gateway + web
@@ -164,7 +167,8 @@ kubectl apply -k deploy/kustomize/overlays/prod-no-stackgres
 # Traefik + 2 replicas, you bring Postgres</code></pre>
       <p><code>components/stackgres</code> is a Kustomize component, not an overlay. Dev does not include it.</p>
 
-      <h2 id="roles">Extensions and roles</h2>
+      <h2 id="postgres">Postgres</h2>
+      <h3 id="roles">Extensions and roles</h3>
       <p>Required: <code>pgcrypto</code>, <code>citext</code>, <code>pg_trgm</code>. Optional: <code>pg_cron</code>. REST/gRPC need <code>shared_preload_libraries=pg_cron,efelant_rest,efelant_grpc</code> (already in the Efelant Postgres image). See <a href="api.html">REST / gRPC</a>.</p>
       <p>Do not put PostgREST, FastAPI, or a gRPC microservice in front of Core.</p>
       <div class="grid">
@@ -173,7 +177,8 @@ kubectl apply -k deploy/kustomize/overlays/prod-no-stackgres
         <article class="card"><h3>efelant_app</h3><p>Client login, function EXECUTE only.</p></article>
       </div>
 
-      <h2 id="ghcr">GHCR</h2>
+      <h2 id="distribution">Distribution</h2>
+      <h3 id="ghcr">GHCR</h3>
       <p>Push to <code>main</code> or a <code>v*</code> tag publishes images and the Helm chart. Every image gets these tags:</p>
       <table>
         <thead><tr><th>tag</th><th>tracks</th></tr></thead>
@@ -194,21 +199,12 @@ docker pull ghcr.io/tafaust/efelant/web:0.1.0
 docker pull ghcr.io/tafaust/efelant/site:0.1.0</code></pre>
       <p>Helm chart is the patch only: <code>--version 0.1.0</code>. First packages may be private. Make them public under GitHub → Packages if the repo is public.</p>
 
-      <h2 id="pages">Docs site only</h2>
+      <h3 id="pages">Docs site only</h3>
       <p>GitHub Pages: <a href="https://efelant.de">efelant.de</a> (<code>site/CNAME</code>). Settings → Pages → GitHub Actions. Rootless nginx: <code>docker compose -f docker-compose.site.yml up --build</code> then <a href="http://localhost:8090">http://localhost:8090</a>.</p>
     </article>
 
-    <nav class="toc">
+    <nav class="toc" aria-label="On this page">
       <h3>On this page</h3>
-      <a href="#pieces">What you run</a>
-      <a href="#docker">Docker</a>
-      <a href="#compose">Compose</a>
-      <a href="#swarm">Swarm</a>
-      <a href="#helm">Helm</a>
-      <a href="#kustomize">Kustomize</a>
-      <a href="#roles">Roles</a>
-      <a href="#ghcr">GHCR</a>
-      <a href="#pages">Docs site</a>
     </nav>
   </div>
 

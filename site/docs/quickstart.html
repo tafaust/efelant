@@ -60,25 +60,27 @@
       <h1>Quickstart</h1>
       <p class="sub">Install the stack and send a message in about five minutes.</p>
 
-      <h2 id="start">1. Start the stack</h2>
+      <h2 id="run">Run locally</h2>
+      <h3 id="start">Start the stack</h3>
       <pre data-lang="bash"><code>cp .env.example .env
 ./scripts/up.sh</code></pre>
       <p>Open <a href="http://localhost:8080">http://localhost:8080</a>. The browser talks same-origin <code>ws://localhost:8080/ws</code>.</p>
 
-      <h2 id="signin">2. Sign in</h2>
+      <h3 id="signin">Sign in</h3>
       <p>On a fresh volume with <code>EFELANT_SEED=1</code>:</p>
       <pre data-lang="text"><code>alice / password123
 bob   / password123</code></pre>
       <div class="note">Self-host with <code>EFELANT_SEED=0</code> and use create-an-account. Do not ship the development passwords. Full paths: <a href="deployment.html">Self-host</a>.</div>
 
-      <h2 id="embed">3. Embed a conversation</h2>
+      <h2 id="use">First integrations</h2>
+      <h3 id="embed">Embed a conversation</h3>
       <pre data-lang="html"><code>&lt;efelant-conversation
   tenant-id="…"
   context-type="access_request"
   external-id="AR-123"&gt;
 &lt;/efelant-conversation&gt;</code></pre>
 
-      <h2 id="status">4. Publish a status in the same transaction</h2>
+      <h3 id="status">Publish a status in the same transaction</h3>
       <pre data-lang="sql"><code>BEGIN;
 UPDATE access_requests SET status = 'approved' WHERE id = 'AR-123';
 SELECT efelant.publish_status(
@@ -90,20 +92,15 @@ SELECT efelant.publish_status(
 );
 COMMIT;</code></pre>
 
-      <h2 id="http">5. Call from another app</h2>
+      <h3 id="http">Call from another app</h3>
       <pre data-lang="bash"><code>curl -s http://localhost:18080/health
 curl -s http://localhost:18081/efelant.v1.Efelant/Health \
   -H "Content-Type: application/json" -d '{}'</code></pre>
       <p>Issue an API client as a tenant admin, then send <code>Authorization: Bearer efl_…</code>. Details: <a href="api.html">REST / gRPC</a>.</p>
     </article>
 
-    <nav class="toc">
+    <nav class="toc" aria-label="On this page">
       <h3>On this page</h3>
-      <a href="#start">Start the stack</a>
-      <a href="#signin">Sign in</a>
-      <a href="#embed">Embed</a>
-      <a href="#status">Publish status</a>
-      <a href="#http">HTTP</a>
     </nav>
   </div>
 
