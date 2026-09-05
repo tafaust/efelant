@@ -59,7 +59,7 @@ asdf install          # Flutter from .tool-versions
 cd app && flutter run
 ```
 
-Android emulator host is usually `10.0.2.2` instead of `localhost`:
+Android emulator host is usually `10.0.2.2` instead of `localhost`. Set it in the app (login or settings → **efelant host**) or at compile time:
 
 ```bash
 flutter run --dart-define=EFELANT_DB_HOST=10.0.2.2

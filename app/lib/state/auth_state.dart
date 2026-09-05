@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 import '../config.dart';
@@ -28,6 +29,7 @@ class AuthState extends ChangeNotifier {
   bool busy = false;
   bool ready = false;
   String? deviceId;
+  String hostOverride = '';
 
   static const _tokenKey = 'efelant.session_token';
   static const _deviceKey = 'efelant.device_id';
@@ -37,6 +39,10 @@ class AuthState extends ChangeNotifier {
     if (deviceId == null || deviceId!.isEmpty) {
       await _rotateDevice();
     }
+
+    final prefs = await SharedPreferences.getInstance();
+    hostOverride = prefs.getString(efelantHostPrefKey) ?? '';
+    _client.updateConfig(applyHostOverride(EfelantConfig.resolve(), hostOverride));
 
     try {
       await _client.connect();
@@ -214,4 +220,34 @@ class AuthState extends ChangeNotifier {
   }
 
   EfelantConfig get config => _client.config;
+
+  String get hostLabel {
+    if (hostOverride.isNotEmpty) {
+      return hostOverride;
+    }
+    return hostEndpointLabel(config, isWeb: kIsWeb);
+  }
+
+  Future<void> setHost(String raw) async {
+    final next = raw.trim();
+    final prefs = await SharedPreferences.getInstance();
+    if (next.isEmpty) {
+      await prefs.remove(efelantHostPrefKey);
+    } else {
+      await prefs.setString(efelantHostPrefKey, next);
+    }
+    hostOverride = next;
+    if (session != null) {
+      await logout();
+    }
+    await _client.close();
+    _client.updateConfig(applyHostOverride(EfelantConfig.resolve(), next));
+    try {
+      await _client.connect();
+      error = null;
+    } catch (err) {
+      error = err is EfelantException ? err.message : err.toString();
+    }
+    notifyListeners();
+  }
 }

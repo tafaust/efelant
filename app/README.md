@@ -15,7 +15,7 @@ cd app
 flutter run
 ```
 
-`flutter run -d chrome` against a running stack uses `ws://localhost:5433` (the published adapter). The packaged web client uses same-origin `/ws`.
+`flutter run -d chrome` against a running stack uses `ws://localhost:5433` (the published adapter). The packaged web client uses same-origin `/ws`. Override either from login or settings → **efelant host**.
 
 See the root [README](../README.md) for company deploy, credentials, and tests.
 
