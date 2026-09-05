@@ -27,7 +27,7 @@ RUN flutter pub get \
     && test -s build/web/index.html \
     && test -s build/web/main.dart.js
 
-FROM nginx:1.27-alpine
+FROM nginx:1.31-alpine
 COPY deploy/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /src/build/web /usr/share/nginx/html
 EXPOSE 80
