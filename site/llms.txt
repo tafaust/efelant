@@ -15,6 +15,8 @@ Docs:
 - /docs/specs/efelant.proto
 - /docs/deployment.html Self-host (Docker, Compose, Swarm, Helm, Kustomize)
 - /docs/status.html
+- /docs/security.html
+- /docs/changelog.html
 - /docs/license.html
 
 Rebuild tokens and SDKs from the repo root:
