@@ -20,7 +20,7 @@
     "@efelant/tokens": "file:../tokens"
   },
   "devDependencies": {
-    "@stencil/core": "^4.27.0",
+    "@stencil/core": "^4.45.0",
     "typescript": "^5.8.2"
   }
 }
