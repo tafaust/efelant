@@ -5,93 +5,114 @@ updates:
     schedule:
       interval: weekly
       day: monday
+    open-pull-requests-limit: 10
+    assignees:
+      - tafaust
+    commit-message:
+      prefix: "chore(deps)"
+      prefix-development: "chore(deps-dev)"
+    rebase-strategy: auto
+    cooldown:
+      default-days: 4
     groups:
       github-actions:
-        patterns: ["*"]
-    open-pull-requests-limit: 10
+        applies-to: version-updates
+        patterns:
+          - "*"
 
   - package-ecosystem: docker
-    directory: /database
+    directories:
+      - /database
+      - /database/web-gateway
+      - /app
+      - /site
     schedule:
       interval: weekly
       day: monday
-  - package-ecosystem: docker
-    directory: /database/web-gateway
-    schedule:
-      interval: weekly
-      day: monday
-  - package-ecosystem: docker
-    directory: /app
-    schedule:
-      interval: weekly
-      day: monday
-  - package-ecosystem: docker
-    directory: /site
-    schedule:
-      interval: weekly
-      day: monday
+    open-pull-requests-limit: 10
+    assignees:
+      - tafaust
+    commit-message:
+      prefix: "chore(deps)"
+      prefix-development: "chore(deps-dev)"
+    rebase-strategy: auto
+    cooldown:
+      default-days: 4
 
   - package-ecosystem: npm
-    directory: /packages/tokens
+    directories:
+      - /packages/tokens
+      - /packages/ts-client
+      - /packages/js-client
+      - /packages/web-components
     schedule:
       interval: weekly
       day: monday
+    open-pull-requests-limit: 10
+    assignees:
+      - tafaust
+    commit-message:
+      prefix: "chore(deps)"
+      prefix-development: "chore(deps-dev)"
+    rebase-strategy: auto
+    cooldown:
+      default-days: 4
+      semver-major-days: 14
     groups:
       npm-minor-patch:
-        update-types: ["minor", "patch"]
-    open-pull-requests-limit: 10
-  - package-ecosystem: npm
-    directory: /packages/ts-client
-    schedule:
-      interval: weekly
-      day: monday
-    groups:
-      npm-minor-patch:
-        update-types: ["minor", "patch"]
-    open-pull-requests-limit: 10
-  - package-ecosystem: npm
-    directory: /packages/js-client
-    schedule:
-      interval: weekly
-      day: monday
-    groups:
-      npm-minor-patch:
-        update-types: ["minor", "patch"]
-    open-pull-requests-limit: 10
-  - package-ecosystem: npm
-    directory: /packages/web-components
-    schedule:
-      interval: weekly
-      day: monday
-    groups:
-      npm-minor-patch:
-        update-types: ["minor", "patch"]
-    open-pull-requests-limit: 10
+        applies-to: version-updates
+        update-types:
+          - minor
+          - patch
 
   - package-ecosystem: pip
-    directory: /database/web-gateway
+    directories:
+      - /database/web-gateway
+      - /database/tests
     schedule:
       interval: weekly
       day: monday
-  - package-ecosystem: pip
-    directory: /database/tests
-    schedule:
-      interval: weekly
-      day: monday
+    open-pull-requests-limit: 10
+    assignees:
+      - tafaust
+    commit-message:
+      prefix: "chore(deps)"
+      prefix-development: "chore(deps-dev)"
+    rebase-strategy: auto
+    cooldown:
+      default-days: 4
+      semver-major-days: 14
 
   - package-ecosystem: pub
-    directory: /app
+    directories:
+      - /app
+      - /packages/flutter
     schedule:
       interval: weekly
       day: monday
-  - package-ecosystem: pub
-    directory: /packages/flutter
-    schedule:
-      interval: weekly
-      day: monday
+    open-pull-requests-limit: 10
+    assignees:
+      - tafaust
+    commit-message:
+      prefix: "chore(deps)"
+      prefix-development: "chore(deps-dev)"
+    rebase-strategy: auto
+    cooldown:
+      default-days: 4
+      semver-major-days: 14
 
   - package-ecosystem: gradle
     directory: /app/android
     schedule:
       interval: weekly
       day: monday
+    open-pull-requests-limit: 10
+    assignees:
+      - tafaust
+    commit-message:
+      prefix: "chore(deps)"
+      prefix-development: "chore(deps-dev)"
+    rebase-strategy: auto
+    cooldown:
+      default-days: 4
+      semver-major-days: 14
