@@ -18,7 +18,7 @@ dependencies:
   flutter_secure_storage: ^10.3.4
   shared_preferences: ^2.5.3
   uuid: ^4.5.1
-  file_picker: ^9.2.3
+  file_picker: ^13.1.0
   intl: ^0.20.2
   path: ^1.9.1
   cryptography: ^2.7.0
